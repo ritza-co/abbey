@@ -6,12 +6,39 @@ what are we doing in this article
 - Outline basic project and goals – this should be at least a bit realistic but very simple. E.g. allowing a user to download files from an S3 bucket or similar.
 
 ## Prerequisites
+- An AWS account, free tier or greater. If you don't have one, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup)
+
+budget
+cost notification
+
+
 
 Terraform installed, AWS account up and running, IAM keys suitable for using with the terraform
 
 ## What do we use AWS for?
 Users want to use Terraform to create and manage IAM users and roles on AWS.
 This is both for convenience (avoid repetitive UI actions) and compliance/governance (if you Terraform scripts are in git, you can prove who had access to what resource when, and that they are correctly offboarded from resources when needed)
+
+## Run AWS CLI version 2 in Docker
+
+We use the [AWS CLI in Docker](https://hub.docker.com/r/amazon/aws-cli).
+```bash
+docker run --rm -it amazon/aws-cli:2.13.30 --version # delete the container when finished the command.
+```
+
+### Stay in AWS free
+AWS [DynamoDB](https://aws.amazon.com/dynamodb) is always free to store 25GB. Completing this tutorial will cost you no AWS fees.
+
+### Create a database
+Create a DynamoDb table called `Person` with partition key `Id`, a string, and sort key `Email`, a string. Use the default table settings.
+
+![Create a DynamoDB table](./assets/dynamodb.jpg)
+
+### Create a new user
+In the **IAM service** → **Users**, create a new user called `DbUser`, with no console permissions.
+
+### Create a role
+
 
 - store files
 - create and manage users to access the files
@@ -27,6 +54,12 @@ This is both for convenience (avoid repetitive UI actions) and compliance/govern
   - give examples
 - how do we use it with AWS
     - Connecting AWS and Terraform
+
+We use the [Terraform CLI in Docker](https://hub.docker.com/r/hashicorp/terraform).
+```bash
+docker pull hashicorp/terraform:1.6
+```
+
     - How do I create an IAM User with Terraform
     - How do I create an IAM Role with Terraform
     - How do I manage existing IAM Users and Roles (e.g. those created initially using the AWS Web Console) with Terraform
