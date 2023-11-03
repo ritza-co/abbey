@@ -6,7 +6,7 @@
   - [Prerequisites](#prerequisites)
   - [Configure database access in AWS IAM manually](#configure-database-access-in-aws-iam-manually)
     - [Create a database](#create-a-database)
-    - [Create a new user](#create-a-new-user)
+    - [Create a user](#create-a-user)
     - [Create a role](#create-a-role)
     - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
   - [Use Terraform to manage users](#use-terraform-to-manage-users)
@@ -68,23 +68,54 @@ First, we create a database table:
   - Click "Create item".
     ![Add a row](./assets/addItem.jpg)
 
-### Create a new user
+### Create a user
 
+Second, we create a user, who has no permissions by default, and will request access to read the value from the table:
 
+- Browse to "IAM".
+- Click "Users".
+- Click "Create user".
+- Enter name `bob`.
+- Enable "Provide user access to the AWS Management Console".
+- Select "I want to create an IAM user".
+- Select "Custom password".
+- Enter `P4ssword_`.
+- Disable "Users must create a new password at next sign-in".
+  ![Create user](./assets/createUser.jpg)
+- Click "Next"
+- Click "Create user"
+- Click "Return to users list".
 
-In the **IAM service** → **Users**, create a new user called `DbUser`, with no console permissions.
+Now we need to give bob an access key so that he can use the CLI:
+
+- Click "bob".
+- Click "Create access key".
+- Click "Command line interface".
+- Enable "I understand the above recommendation and want to proceed to create an access key."
+- Click "Next".
+- Click "Create access key".
+- Save both the access key and secret access key to a file to use later.
+- Click "Done".
 
 ### Create a role
 
+Finally, we create a role with permissions to read from the Person table
 
-- store files
-- create and manage users to access the files
-- create and manage roles to manage user access to the files
-  - what is IAM
-  - Create a role / group / both ?
-  - Assign a role to a user
+- Browse to "IAM".
+- Click "Roles".
+- Click "Create role".
+- Enter name `dbreader`.
+- Enable "Provide user access to the AWS Management Console".
+- Select "I want to create an IAM user".
+- Select "Custom password".
+- Enter `P4ssword_`.
+- Disable "Users must create a new password at next sign-in".
+  ![Create user](./assets/createUser.jpg)
+- Click "Next"
+- Click "Create user"
+- Click "Return to users list".
 
-
+Now our example setup is complete.
 
 ### Run AWS CLI version 2 in Docker
 
