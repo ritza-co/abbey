@@ -8,6 +8,7 @@
     - [Create a database](#create-a-database)
     - [Create a user](#create-a-user)
     - [Create a role](#create-a-role)
+    - [Read the database with the user using the role](#read-the-database-with-the-user-using-the-role)
     - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
   - [Use Terraform to manage users](#use-terraform-to-manage-users)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
@@ -104,18 +105,19 @@ Finally, we create a role with permissions to read from the Person table
 - Browse to "IAM".
 - Click "Roles".
 - Click "Create role".
-- Enter name `dbreader`.
-- Enable "Provide user access to the AWS Management Console".
-- Select "I want to create an IAM user".
-- Select "Custom password".
-- Enter `P4ssword_`.
-- Disable "Users must create a new password at next sign-in".
-  ![Create user](./assets/createUser.jpg)
-- Click "Next"
-- Click "Create user"
-- Click "Return to users list".
+- Select "AWS Account".
+- Select "This account".
+- Click "Next".
+- Select "AmazonDynamoDBReadOnlyAccess".
+- Click "Next".
+- Under "Role name", enter `reader`.
+- Click "Create role".
 
-Now our example setup is complete.
+Now our example setup is complete and ready to test.
+
+### Read the database with the user using the role
+
+TODO
 
 ### Run AWS CLI version 2 in Docker
 
