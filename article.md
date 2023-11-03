@@ -4,14 +4,12 @@
   - [Introduction](#introduction)
     - [A few definitions](#a-few-definitions)
   - [Prerequisites](#prerequisites)
-  - [What do we use AWS for?](#what-do-we-use-aws-for)
-  - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
-    - [Stay in AWS free](#stay-in-aws-free)
+  - [Configure database access in AWS IAM manually](#configure-database-access-in-aws-iam-manually)
     - [Create a database](#create-a-database)
     - [Create a new user](#create-a-new-user)
     - [Create a role](#create-a-role)
-    - [Use AWS manually to manage files and users](#use-aws-manually-to-manage-files-and-users)
-  - [What do we use Terraform for?](#what-do-we-use-terraform-for)
+    - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
+  - [Use Terraform to manage users](#use-terraform-to-manage-users)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
 
 
@@ -21,13 +19,14 @@ This article explains how to use Terraform to manage user access to a database i
 
 ### A few definitions
 
-Below are a few AWS access management concepts that are used throughout this tutorial.
+Below are AWS access management concepts that are used throughout this tutorial.
 
 Concept | Explanation
 --- | ---
 AWS account | An AWS client's organization, consisting of team members, applications, databases, and billing.
 AWS user | An identity, that can be a person or application. It has passwords, access keys, and permissions.
 AWS group | A collection of users, that can be used to apply permissions to multiple users at once.
+AWS role | An identity that is not any specific person or application, but rather one that a user can temporarily assume that grants a set of permissions.
 AWS IAM | Identity and Access Management — the service that manages all users and permissions in your AWS account.
 AWS [CloudFormation](https://aws.amazon.com/cloudformation/) | A configuration service provided by AWS, that allows you to create and configure users and applications declaratively, in JSON or YAML files. Without using CloudFormation, you need to imperatively set up AWS components through the website (console), or by running commands through the AWS CLI in a terminal.
 [Terraform](https://www.terraform.io/) | An application similar to CloudFormation, that allows declarative configuration. However, Terraform is not created by AWS. It is a level of abstraction above AWS. Terraform can be run on any server you have access to, and uses the same configuration files to manage access on [different cloud providers](https://registry.terraform.io/), including Azure, AWS, and Google Cloud.
@@ -39,28 +38,19 @@ Although AWS provides CloudFormation for configuration, we recommend Terraform i
 - It is more powerful, with a large open-source ecosystem, and arguably simpler configuration language.
 
 ## Prerequisites
-- An AWS account, free tier or greater. If you don't have one, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup)
 
-budget
-cost notification
+To follow this tutorial, you'll need:
 
+- An AWS account. Free tier is fine. If you don't have an account, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup)
+- Docker, version 20 or greater. Docker allows you to run all commands in this tutorial, whether you're on Windows, Mac, or Linux. You're welcome to run commands directly on your machine instead, if you can handle differences that may occur.
 
+> Terraform installed, AWS account up and running, IAM keys suitable for using with the terraform
 
-Terraform installed, AWS account up and running, IAM keys suitable for using with the terraform
+## Configure database access in AWS IAM manually
 
-## What do we use AWS for?
-Users want to use Terraform to create and manage IAM users and roles on AWS.
-This is both for convenience (avoid repetitive UI actions) and compliance/governance (if you Terraform scripts are in git, you can prove who had access to what resource when, and that they are correctly offboarded from resources when needed)
+In this section we'll create a [DynamoDB](https://aws.amazon.com/dynamodb) table, a user that wants to access it, and a role that the user can assume to access the table. Requiring the user to assume a role to access the table allows administrators to automatically revoke permissions from the user after a duration.
 
-## Run AWS CLI version 2 in Docker
-
-We use the [AWS CLI in Docker](https://hub.docker.com/r/amazon/aws-cli).
-```bash
-docker run --rm -it amazon/aws-cli:2.13.30 --version # delete the container when finished the command.
-```
-
-### Stay in AWS free
-AWS [DynamoDB](https://aws.amazon.com/dynamodb) is always free to store 25GB. Completing this tutorial will cost you no AWS fees.
+AWS DynamoDB is always free to store 25 GB. Completing this tutorial will cost you no AWS fees.
 
 ### Create a database
 Create a DynamoDb table called `Person` with partition key `Id`, a string, and sort key `Email`, a string. Use the default table settings.
@@ -80,13 +70,25 @@ In the **IAM service** → **Users**, create a new user called `DbUser`, with no
   - Create a role / group / both ?
   - Assign a role to a user
 
-### Use AWS manually to manage files and users
 
-## What do we use Terraform for?
+
+### Run AWS CLI version 2 in Docker
+
+We use the [AWS CLI in Docker](https://hub.docker.com/r/amazon/aws-cli).
+```bash
+docker run --rm -it amazon/aws-cli:2.13.30 --version # delete the container when finished the command.
+```
+
+
+## Use Terraform to manage users
 - what is terraform
   - give examples
 - how do we use it with AWS
     - Connecting AWS and Terraform
+
+> Users want to use Terraform to create and manage IAM users and roles on AWS.
+This is both for convenience (avoid repetitive UI actions) and compliance/governance (if you Terraform scripts are in git, you can prove who had access to what resource when, and that they are correctly offboarded from resources when needed)
+
 
 We use the [Terraform CLI in Docker](https://hub.docker.com/r/hashicorp/terraform).
 ```bash
