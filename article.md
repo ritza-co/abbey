@@ -53,11 +53,25 @@ In this section we'll create a [DynamoDB](https://aws.amazon.com/dynamodb) table
 AWS DynamoDB is always free to store 25 GB. Completing this tutorial will cost you no AWS fees.
 
 ### Create a database
-Create a DynamoDb table called `Person` with partition key `Id`, a string, and sort key `Email`, a string. Use the default table settings.
 
-![Create a DynamoDB table](./assets/dynamodb.jpg)
+First, we create a database table:
+
+- Browse to DynamoDB in the AWS web console.
+- Create a DynamoDb table called `Person` with partition key string `Id` and sort key string `Email`. Use the default table settings.
+  ![Create a DynamoDB table](./assets/dynamodb.jpg)
+- Wait for AWS to create the table.
+- Add a row to the table:
+  - Click the table name.
+  - Click "Explore table items".
+  - Click "Create item".
+  - Enter "Id" `1` and "Email" `alice@example.com`.
+  - Click "Create item".
+    ![Add a row](./assets/addItem.jpg)
 
 ### Create a new user
+
+
+
 In the **IAM service** → **Users**, create a new user called `DbUser`, with no console permissions.
 
 ### Create a role
