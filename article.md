@@ -119,6 +119,8 @@ Now our example setup is complete and ready to test.
 
 TODO
 
+- user asks admin to give him sts:AssumeRole permission for the reader role and admin does it
+
 ### Run AWS CLI version 2 in Docker
 
 We use the [AWS CLI in Docker](https://hub.docker.com/r/amazon/aws-cli).
