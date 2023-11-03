@@ -21,3 +21,12 @@
 - [ ] Sign up for a free trial on Abbey
 - [ ] Try out one of their hello world examples if possible
 - [ ] Figure out what extra value Abbey provides. Mention that and link to the existing Abbey IAM guide at end of article
+
+## Article plan
+- How to create user and role to access dynamodb table to read data in AWS IAM. And revoke permissions.
+- How to do it in Terraform
+  - User requests access
+  - Admin approves it and configures it
+  - Admin revokes it
+- How to do it in Abbey.io
+  - What are the benefits of Abbey
