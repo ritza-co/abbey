@@ -194,7 +194,31 @@ Terraform is an open-source infrastructure as code (IaC) application that allows
 
 ### Install Terraform
 
+Make any folder on your computer, like `temp` and open a terminal inside it.
 
+Create a file called
+
+```dockerfile
+FROM alpine:latest
+
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    && pip3 install --no-cache-dir awscli \
+    && apk add --update --no-cache curl \
+    && curl -O https://releases.hashicorp.com/terraform/1.1.9/terraform_1.1.9_linux_amd64.zip \
+    && unzip terraform_1.1.9_linux_amd64.zip -d /usr/bin \
+    && rm terraform_1.1.9_linux_amd64.zip
+
+RUN aws --version \
+    && terraform version
+
+WORKDIR /workspace
+```
+
+docker build -t my-alpine .
+docker run -it --name my-running-app my-alpine
+docker start -ai my-running-app
 
 ### Create a database
 
