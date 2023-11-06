@@ -9,6 +9,7 @@
     - [Create a user](#create-a-user)
     - [Create a role](#create-a-role)
     - [Read the database with the user using the role](#read-the-database-with-the-user-using-the-role)
+    - [How to limit Bob's access to the table?](#how-to-limit-bobs-access-to-the-table)
     - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
   - [Use Terraform to manage users](#use-terraform-to-manage-users)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
@@ -162,13 +163,26 @@ Bob is returned to the tables screen, can click the Person table, click "Explore
 
 When he's done he can click "Switch back", under his username at the top right.
 
+### How to limit Bob's access to the table?
+
+If Bob doesn't need permanent access to the table, the administrator will want to remove Bob's permissions once he has read the data he needs. There are various ways of doing this:
+
+- Set a calendar reminder to manually log in and delete `bobreader`, possibly after emailing Bob to check that he's done. This has a lot of room for human error.
+- Create a custom script using AWS Lambda, CloudTrail, and CloudWatch, that triggers when Bob assumes the `reader` role and deletes `bobreader`. This is too much work, since user access is a common request.
+- Set the date the policy ends. Bob will be able to assume the role as many times as he wants before this time. This is the most secure and simple way of assigning temporary access. To do this, you can add a date a few days in the future to `bobreader`:
+  ```json
+  "Condition": {
+    "DateLessThan": {"aws:CurrentTime": "2023-11-06T23:59:59Z"}
+  }
+  ```
+
 ### Run AWS CLI version 2 in Docker
 
+TODO - delete this, pointless given we have console and terraform and abbey.
 We use the [AWS CLI in Docker](https://hub.docker.com/r/amazon/aws-cli).
 ```bash
 docker run --rm -it amazon/aws-cli:2.13.30 --version # delete the container when finished the command.
 ```
-
 
 ## Use Terraform to manage users
 - what is terraform
