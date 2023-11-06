@@ -10,9 +10,14 @@
     - [Create a role](#create-a-role)
     - [Read the database with the user using the role](#read-the-database-with-the-user-using-the-role)
     - [How to limit Bob's access to the table?](#how-to-limit-bobs-access-to-the-table)
-    - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
   - [Use Terraform to manage users](#use-terraform-to-manage-users)
+    - [What is Terraform?](#what-is-terraform)
+    - [Install Terraform](#install-terraform)
+    - [Create a database](#create-a-database-1)
+    - [Create a user](#create-a-user-1)
+    - [Create a role](#create-a-role-1)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
+  - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
 
 
 ## Introduction
@@ -50,9 +55,12 @@ To follow this tutorial, you'll need:
 
 ## Configure database access in AWS IAM manually
 
-In this section we'll create a [DynamoDB](https://aws.amazon.com/dynamodb) table, a user that wants to access it, and a role that the user can assume to access the table. Requiring the user to assume a role to access the table allows administrators to automatically revoke permissions from the user after a duration.
+In this section we'll create a [DynamoDB](https://aws.amazon.com/dynamodb) table, a user that wants to access it, and a role that the user can assume to access the table. AWS DynamoDB is always free to store 25 GB. Completing this tutorial will cost you no AWS fees.
 
-AWS DynamoDB is always free to store 25 GB. Completing this tutorial will cost you no AWS fees.
+Requiring the user to assume a role to access the table offers a few advantages over giving a user direct access to a resource:
+- It limits access to the least privilege. Assuming the role will grant a user the permissions of that role, but remove all their other permissions.
+- Credentials are safer, being temporary for a role. A user's access keys are permanent.
+- Roles are centrally managed (you need to manage fewer roles than individual permissions for each user) and are thus more easily maintained and audited.
 
 ### Create a database
 
@@ -101,7 +109,7 @@ Now we need to give bob an access key so that he can use the CLI:
 
 ### Create a role
 
-Finally, we create a role with permissions to read from the Person table
+Finally, we create a role with permissions to read from the Person table:
 
 - Browse to "IAM".
 - Click "Roles".
@@ -176,16 +184,24 @@ If Bob doesn't need permanent access to the table, the administrator will want t
   }
   ```
 
-### Run AWS CLI version 2 in Docker
-
-TODO - delete this, pointless given we have console and terraform and abbey.
-We use the [AWS CLI in Docker](https://hub.docker.com/r/amazon/aws-cli).
-```bash
-docker run --rm -it amazon/aws-cli:2.13.30 --version # delete the container when finished the command.
-```
-
 ## Use Terraform to manage users
-- what is terraform
+
+In this section, we are going to repeat what was done in the previous section on AWS, but using Terraform instead. We will create a user called Carol and a role she can assume to read the DynamoDB table.
+
+### What is Terraform?
+
+Terraform is an open-source infrastructure as code (IaC) application that allows you to configure cloud infrastructure using configuration files. It is common to store these files in version control, like GitHub, so that configuration and access control can be collaborative, versioned, approved, and audited.
+
+### Install Terraform
+
+
+
+### Create a database
+
+### Create a user
+
+### Create a role
+
   - give examples
 - how do we use it with AWS
     - Connecting AWS and Terraform
@@ -219,3 +235,12 @@ https://github.com/abbeylabs/abbey-starter-kit-aws-iam
 - Simpler / easier?
 - More compliance?
 - Single interface to manage access to all resources, not just AWS (e.g. Snowflake).
+
+## Run AWS CLI version 2 in Docker
+
+TODO - delete this section, pointless given we have console and terraform and abbey.
+
+We use the [AWS CLI in Docker](https://hub.docker.com/r/amazon/aws-cli).
+```bash
+docker run --rm -it amazon/aws-cli:2.13.30 --version # delete the container when finished the command.
+```
