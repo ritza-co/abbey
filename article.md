@@ -117,9 +117,50 @@ Now our example setup is complete and ready to test.
 
 ### Read the database with the user using the role
 
-TODO
+Bob wants the latest email addresses for all customers and so wants to access the Person table. He emails an AWS administrator at his company and asks for access.
 
-- user asks admin to give him sts:AssumeRole permission for the reader role and admin does it
+The administrator then logs in to the console and does the following:
+
+- Browse to "Users".
+- Click "bob".
+- In the "Permissions" tab, click "Add permissions" — "Create inline policy".
+- Select "JSON".
+- Copy and paste the policy below, replacing `<ACCOUNT-ID>` with your account number (found under your name at the very top right of the window).
+  ```json
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "sts:AssumeRole",
+        "Resource": "arn:aws:iam::<ACCOUNT-ID>:role/reader"
+      }
+    ]
+  }
+  ```
+- Click "Next".
+- Enter the name `bobreader`.
+- Click "Create policy".
+
+The administrator then replies to Bob's email, saying that he now has permissions to read the database.
+
+Bob logs in to the AWS website, entering the company's account identifier, his name `bob`, and the password `P4ssword_`. He does the following:
+
+- Select the region where the DynamoDB table is kept.
+- Searches for the `DynamoDB` service.
+- Clicks "Tables" and is told "Your role does not have permissions to view the list of tables.".
+- Under your name at the top right of the screen, click "Switch role".
+- Click "Switch role".
+- Enter your account identifer in "Account".
+- Enter `reader` in "Role".
+- Enter anything in "Display Name".
+- Click "Switch role".
+
+Bob is returned to the tables screen, can click the Person table, click "Explore table items", and finally see Alice's email address.
+
+![See the DynamoDB table](./assets/seeTable.jpg)
+
+When he's done he can click "Switch back", under his username at the top right.
 
 ### Run AWS CLI version 2 in Docker
 
