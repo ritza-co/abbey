@@ -13,8 +13,8 @@
     - https://eu-west-1.console.aws.amazon.com/console/home?region=eu-west-1#
 - [x] Create budget to prevent incurring costs
   - [x] Use simple template for zero cost budget
-- [ ] Create IAM user that can use SimpleDB
-- [ ] Make "hello world" SimpleDB app
+- [x] Create IAM user that can use SimpleDB
+- [x] Make "hello world" SimpleDB app
 - [ ] Run through the [Spacelift](https://spacelift.io/blog/terraform-iam-role) blog post to discover anything wrong or outdated
 - [ ] Come up with a basic scenario to demonstrate using terraform + IAM to create and manage users/roles
 - [ ] Create the terraform code and steps needed to run through the scenario

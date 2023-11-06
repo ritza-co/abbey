@@ -196,29 +196,31 @@ Terraform is an open-source infrastructure as code (IaC) application that allows
 
 Make any folder on your computer, like `temp` and open a terminal inside it.
 
-Create a file called
+Create a file called `Dockerfile` with the following content:
 
 ```dockerfile
-FROM alpine:latest
+FROM alpine:3.18.4
 
-RUN apk add --no-cache \
-    python3 \
-    py3-pip \
-    && pip3 install --no-cache-dir awscli \
-    && apk add --update --no-cache curl \
-    && curl -O https://releases.hashicorp.com/terraform/1.1.9/terraform_1.1.9_linux_amd64.zip \
-    && unzip terraform_1.1.9_linux_amd64.zip -d /usr/bin \
-    && rm terraform_1.1.9_linux_amd64.zip
+RUN apk add --no-cache curl && \      # python3 py3-pip && \
+    # install aws
+    # pip3 install --no-cache-dir awscli && \
+    # install terraform
+    curl -O https://releases.hashicorp.com/terraform/1.1.9/terraform_1.1.9_linux_amd64.zip && \
+    unzip terraform_1.1.9_linux_amd64.zip -d /usr/bin && \
+    rm terraform_1.1.9_linux_amd64.zip
 
-RUN aws --version \
-    && terraform version
+# RUN aws --version && terraform version
 
 WORKDIR /workspace
 ```
 
-docker build -t my-alpine .
-docker run -it --name my-running-app my-alpine
-docker start -ai my-running-app
+Run the file:
+
+```bash
+docker build -t cloudbox_image .
+docker run -it --name cloudbox cloudbox_image
+docker start -ai cloudbox
+```
 
 ### Create a database
 
