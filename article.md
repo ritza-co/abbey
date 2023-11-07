@@ -247,6 +247,12 @@ aws configure
 # enter your user secret key
 ```
 
+To test that your credentials are correct, you can run:
+
+```bash
+aws s3 ls
+```
+
 ### Create a database
 
 Next, we are going to start working on a Terraform configuration file to provision our AWS infrastructure.
@@ -320,8 +326,73 @@ should now work.
 If you ever set or change modules or backend configuration for Terraform,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
-
 ```
+
+Terraform downloaded large files to `.terraform`. Remember to exclude them from version control when you use a `.gitignore` file in your own projects.
+
+To check that your configuration file syntax is correct, run:
+
+```bash
+terraform validate
+
+# Success! The configuration is valid.
+```
+
+Now let's create the database. Run:
+
+```bash
+terraform apply
+# type yes and push enter
+```
+
+The output should be:
+
+```bash
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_dynamodb_table.person will be created
+  + resource "aws_dynamodb_table" "person2 {
+      + arn              = (known after apply)
+      + billing_mode     = "PROVISIONED"
+      + hash_key         = "Id"
+      + id               = (known after apply)
+      + name             = "Person2"
+      + range_key        = "Email"
+      + read_capacity    = 1
+      + stream_arn       = (known after apply)
+      + stream_label     = (known after apply)
+      + stream_view_type = (known after apply)
+      + tags_all         = (known after apply)
+      + write_capacity   = 1
+
+      + attribute {
+          + name = "Email"
+          + type = "S"
+        }
+      + attribute {
+          + name = "Id"
+          + type = "S"
+        }
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+aws_dynamodb_table.person: Creating...
+aws_dynamodb_table.person: Creation complete after 10s [id=Person]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+```
+
+
 
 ### Create a user
 
