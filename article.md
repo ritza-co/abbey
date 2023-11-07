@@ -12,6 +12,7 @@
     - [How to limit Bob's access to the table?](#how-to-limit-bobs-access-to-the-table)
   - [Use Terraform to manage users](#use-terraform-to-manage-users)
     - [What is Terraform?](#what-is-terraform)
+    - [Create an administrator in IAM](#create-an-administrator-in-iam)
     - [Install Terraform](#install-terraform)
     - [Create a database](#create-a-database-1)
     - [Create a user](#create-a-user-1)
@@ -191,6 +192,12 @@ In this section, we are going to repeat what was done in the previous section on
 ### What is Terraform?
 
 Terraform is an open-source infrastructure as code (IaC) application that allows you to configure cloud infrastructure using configuration files. It is common to store these files in version control, like GitHub, so that configuration and access control can be collaborative, versioned, approved, and audited.
+
+### Create an administrator in IAM
+
+If you completed the earlier section and have the user Bob, please go to his user in the AWS console and add the new permission `AdministratorAccess`. Since you noted his access key you can use it in the AWS CLI, now that Bob is an administrator.
+
+If you didn't complete the earlier section, please create a new AWS user with the `AdministratorAccess` permission and create an access key for him.
 
 ### Install Terraform
 
