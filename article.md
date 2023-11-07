@@ -198,7 +198,7 @@ Terraform is an open-source infrastructure as code (IaC) application that allows
 
 ### Create an administrator in IAM
 
-If you completed the earlier section and have the user Bob, please go to his user in the AWS console and add the new permission `AdministratorAccess`. Since you noted his access key you can use it in the AWS CLI, now that Bob is an administrator.
+If you completed the earlier section and have the user Bob, please go to his user in the AWS console and add the new permission `AdministratorAccess`. Since you noted his access key you can use it in the AWS CLI, now that Bob is an administrator. Also browse to your DynamoDB Person table and delete it, as we will recreate it with Terraform.
 
 If you didn't complete the earlier section, please create a new AWS user with the `AdministratorAccess` permission and create an access key for him.
 
@@ -213,7 +213,7 @@ FROM alpine:3.18.4
 
 WORKDIR /workspace
 
-RUN apk add aws-cli terraform
+RUN apk add   aws-cli   terraform
 ```
 
 Build the container and start it:
@@ -236,7 +236,7 @@ If you exit the container and wish to start it again later, run:
 docker start -ai cloudbox
 ```
 
-The `--volume .:/workspace` parameter shares your current temporary folder with the container, so both your physical machine and Docker can read and write the same files.
+The `--volume .:/workspace` parameter shares your current folder with the container, so both your physical machine and Docker can read and write the same files.
 
 ### Set AWS credentials
 
@@ -273,8 +273,8 @@ terraform {
 
 provider "aws" { region  = "eu-west-1" }
 
-resource "aws_dynamodb_table" "person2" {
-  name           = "Person2" #todo
+resource "aws_dynamodb_table" "person" {
+  name           = "Person
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
@@ -295,7 +295,7 @@ resource "aws_dynamodb_table" "person2" {
 
 This infrastructure specification does only one thing — create a DynamoDB table called Person in the AWS Ireland region. Note that the AWS table name `Person` is separate from the Terraform resource name `person2`. The latter can be whatever you want, and is used to refer to this resource anywhere in the Terraform configuration file.
 
-Although AWS CLI is installed, Terraform still has to download its provider, since we used it in the configuration file. Run this command in the Docker terminal:
+Although AWS CLI is installed, Terraform still has to download its provider, since we used AWS in the configuration file. Run this command in the Docker terminal:
 
 ```bash
 terraform init
@@ -329,7 +329,7 @@ rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 ```
 
-Terraform downloaded large files to `.terraform`. Remember to exclude them from version control when you use a `.gitignore` file in your own projects.
+Terraform downloaded large files to `.terraform`. Remember to exclude them from version control if you use `.gitignore`.
 
 To check that your configuration file syntax is correct, run:
 
@@ -355,12 +355,12 @@ Terraform used the selected providers to generate the following execution plan. 
 Terraform will perform the following actions:
 
   # aws_dynamodb_table.person will be created
-  + resource "aws_dynamodb_table" "person2 {
+  + resource "aws_dynamodb_table" "person {
       + arn              = (known after apply)
       + billing_mode     = "PROVISIONED"
       + hash_key         = "Id"
       + id               = (known after apply)
-      + name             = "Person2"
+      + name             = "Person"
       + range_key        = "Email"
       + read_capacity    = 1
       + stream_arn       = (known after apply)
@@ -392,6 +392,8 @@ aws_dynamodb_table.person: Creation complete after 10s [id=Person]
 
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ```
+
+Note that Terraform created the file `terraform.tfstate`, to represent and track your AWS configuration. If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that it did not create and are not in the state file. You can use the `import` command to include existing AWS infrastructure in your Terraform configuration.
 
 ### Add a row to the table
 
