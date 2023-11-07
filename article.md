@@ -16,6 +16,7 @@
     - [Install Terraform](#install-terraform)
     - [Set AWS credentials](#set-aws-credentials)
     - [Create a database](#create-a-database-1)
+    - [Add a row to the table](#add-a-row-to-the-table)
     - [Create a user](#create-a-user-1)
     - [Create a role](#create-a-role-1)
     - [Delete your temporary administrator](#delete-your-temporary-administrator)
@@ -392,7 +393,20 @@ aws_dynamodb_table.person: Creation complete after 10s [id=Person]
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ```
 
+### Add a row to the table
 
+To check that the table exists, let's add a row:
+
+```bash
+aws dynamodb put-item \
+    --table-name Person \
+    --item '{
+        "Id": {"S": "1"},
+        "Email": {"S": "alice@example.com"}
+    }'
+```
+
+If you browse to the database in the AWS console and "Explore table items", you can now see the new row.
 
 ### Create a user
 
