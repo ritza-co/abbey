@@ -194,34 +194,35 @@ Terraform is an open-source infrastructure as code (IaC) application that allows
 
 ### Install Terraform
 
-Make any folder on your computer, like `temp` and open a terminal inside it.
+We need a temporary place to work on files in this tutorial. Make any folder on your computer, like `temp`, and open a terminal inside it.
 
-Create a file called `Dockerfile` with the following content:
+You're welcome to install AWS and Terraform manually on your machine, following the instructions on their websites, but a faster way is just to use Docker. Create a file called `Dockerfile` with the following content:
 
 ```dockerfile
 FROM alpine:3.18.4
 
 WORKDIR /workspace
 
-RUN apk add --no-cache curl && \
-    # gnupg software-properties-common sudo && \      # python3 py3-pip && \
-    # install aws
-    # pip3 install --no-cache-dir awscli && \
-    # aws --version
-    # install terraform
-    curl -o terra.zip https://releases.hashicorp.com/terraform/1.6.3/terraform_1.6.3_linux_amd64.zip && \
-    unzip terra.zip -d /usr/bin && \
-    rm terra.zip && \
-    terraform version
-
-# RUN  &&
+RUN apk add aws-cli terraform
 ```
 
-Run the file:
+Build the container and start it:
 
 ```bash
 docker build -t cloudbox_image .
 docker run -it --name cloudbox cloudbox_image
+```
+
+You are now inside the Docker container and able to use AWS and Terraform:
+
+```bash
+aws --version
+terraform -v
+```
+
+If you exit the container and wish to start it again later, run:
+
+```bash
 docker start -ai cloudbox
 ```
 
