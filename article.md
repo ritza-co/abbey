@@ -201,17 +201,20 @@ Create a file called `Dockerfile` with the following content:
 ```dockerfile
 FROM alpine:3.18.4
 
-RUN apk add --no-cache curl && \      # python3 py3-pip && \
+WORKDIR /workspace
+
+RUN apk add --no-cache curl && \
+    # gnupg software-properties-common sudo && \      # python3 py3-pip && \
     # install aws
     # pip3 install --no-cache-dir awscli && \
+    # aws --version
     # install terraform
-    curl -O https://releases.hashicorp.com/terraform/1.1.9/terraform_1.1.9_linux_amd64.zip && \
-    unzip terraform_1.1.9_linux_amd64.zip -d /usr/bin && \
-    rm terraform_1.1.9_linux_amd64.zip
+    curl -o terra.zip https://releases.hashicorp.com/terraform/1.6.3/terraform_1.6.3_linux_amd64.zip && \
+    unzip terra.zip -d /usr/bin && \
+    rm terra.zip && \
+    terraform version
 
-# RUN aws --version && terraform version
-
-WORKDIR /workspace
+# RUN  &&
 ```
 
 Run the file:
