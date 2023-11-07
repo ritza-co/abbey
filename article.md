@@ -14,9 +14,11 @@
     - [What is Terraform?](#what-is-terraform)
     - [Create an administrator in IAM](#create-an-administrator-in-iam)
     - [Install Terraform](#install-terraform)
+    - [Set AWS credentials](#set-aws-credentials)
     - [Create a database](#create-a-database-1)
     - [Create a user](#create-a-user-1)
     - [Create a role](#create-a-role-1)
+    - [Delete your temporary administrator](#delete-your-temporary-administrator)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
   - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
 
@@ -233,7 +235,19 @@ If you exit the container and wish to start it again later, run:
 docker start -ai cloudbox
 ```
 
+### Set AWS credentials
+
+In the Docker terminal, set your administrator access key:
+
+```bash
+aws configure
+# enter your user access key
+# enter your user secret key
+```
+
 ### Create a database
+
+
 
 ### Create a user
 
@@ -258,6 +272,10 @@ docker pull hashicorp/terraform:1.6
     - (Can either also set up a resource like an S3 bucket via Terraform or manually via the UI to use as an example of what the role allows the user to do)
   - Make changes to the existing user (e.g. revoke access to the S3 bucket again)
 
+
+### Delete your temporary administrator
+
+If you've been following along with this tutorial, delete user Bob, so that his administrator permissions cannot be exploited.
 
 ## What is Abbey, and how does it make this easier?
 
