@@ -219,7 +219,7 @@ Build the container and start it:
 
 ```bash
 docker build -t cloudbox_image .
-docker run -it --name cloudbox cloudbox_image
+docker run -it --volume .:/workspace --name cloudbox cloudbox_image
 ```
 
 You are now inside the Docker container and able to use AWS and Terraform:
@@ -235,6 +235,8 @@ If you exit the container and wish to start it again later, run:
 docker start -ai cloudbox
 ```
 
+The `--volume .:/workspace` parameter shares your current temporary folder with the container, so both your physical machine and Docker can read and write the same files.
+
 ### Set AWS credentials
 
 In the Docker terminal, set your administrator access key:
@@ -247,7 +249,79 @@ aws configure
 
 ### Create a database
 
+Next, we are going to start working on a Terraform configuration file to provision our AWS infrastructure.
 
+Create a file called `main.tf` in your shared workspace folder. Add the content below.
+
+```terraform
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.16"
+    }
+  }
+  required_version = ">= 1.2.0"
+}
+
+provider "aws" { region  = "eu-west-1" }
+
+resource "aws_dynamodb_table" "person2" {
+  name           = "Person2" #todo
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 1
+  write_capacity = 1
+  hash_key       = "Id"
+  range_key      = "Email"
+
+  attribute {
+    name = "Id"
+    type = "S"
+  }
+
+  attribute {
+    name = "Email"
+    type = "S"
+  }
+}
+```
+
+This infrastructure specification does only one thing — create a DynamoDB table called Person in the AWS Ireland region. Note that the AWS table name `Person` is separate from the Terraform resource name `person2`. The latter can be whatever you want, and is used to refer to this resource anywhere in the Terraform configuration file.
+
+Although AWS CLI is installed, Terraform still has to download its provider, since we used it in the configuration file. Run this command in the Docker terminal:
+
+```bash
+terraform init
+```
+
+The output will be:
+
+```bash
+/workspace # terraform init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding hashicorp/aws versions matching "~> 4.16"...
+- Installing hashicorp/aws v4.67.0...
+- Installed hashicorp/aws v4.67.0 (signed by HashiCorp)
+
+Terraform has created a lock file .terraform.lock.hcl to record the provider
+selections it made above. Include this file in your version control repository
+so that Terraform can guarantee to make the same selections by default when
+you run "terraform init" in the future.
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+
+```
 
 ### Create a user
 
