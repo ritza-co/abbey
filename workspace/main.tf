@@ -72,3 +72,27 @@ resource "aws_iam_role_policy_attachment" "dbreader_dynamodb_readonly" {
 }
 
 
+# allow carol to assume dbreader
+# -----------------------------------
+
+data "aws_iam_policy_document" "carol_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    resources = [aws_iam_role.dbreader.arn]
+    condition {
+      test     = "DateLessThan"
+      variable = "aws:CurrentTime"
+      values   = ["2023-11-08T23:59:59Z"]
+    }
+  }
+}
+
+resource "aws_iam_policy" "carol_assume_dbreader_policy" {
+  name   = "CarolAssumeDbReaderPolicy"
+  policy = data.aws_iam_policy_document.carol_assume_role_policy.json
+}
+
+resource "aws_iam_user_policy_attachment" "carol_assume_role" {
+  user       = aws_iam_user.carol.name
+  policy_arn = aws_iam_policy.carol_assume_dbreader_policy.arn
+}

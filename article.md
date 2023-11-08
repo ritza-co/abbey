@@ -486,7 +486,7 @@ Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 Carol's access key and secret are now in the `terraform.tfstate` file. Open the file and note them. Now we can use the keys to log in to AWS using the CLI and see if we can access the Person table. Instead of rerunning `aws configure` and changing your default credentials, let's just pass Carol's keys into the CLI for one command. In the Docker terminal run:
 
 ```bash
-AWS_ACCESS_KEY_ID="<Carol's access key>" AWS_SECRET_ACCESS_KEY="<Carol's secret access key>" aws s3 ls
+AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws s3 ls
 ```
 
 As expected, Carol does not yet have database access.
@@ -509,9 +509,9 @@ resource "aws_iam_role" "dbreader" {
         Action = "sts:AssumeRole",
         Effect = "Allow",
         Principal = {
-          "AWS": "arn:aws:iam::038824608327:root" # TODO
+          "AWS": "arn:aws:iam::038824608327:root"
         },
-        Condition: { }
+        Condition: {  }
       },
     ],
   })
@@ -531,30 +531,9 @@ Run `terraform apply`.
 
 We now have a role with a permission to read the database, and a user, Carol. But Carol does not have permissions to assume roles. If she wants to access the Person table she must email an AWS administrator at her company and asks for access.
 
-The administrator
+As the administrator, you need to add the following to the configuration file and run `terraform apply` again:
 
 ```terraform
-data "aws_iam_policy_document" "dbreader_assume_role_policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "AWS"
-      identifiers = [aws_iam_user.carol.arn]
-    }
-  }
-}
-
-resource "aws_iam_role" "dbreader" {
-  name               = "dbreader"
-  assume_role_policy = data.aws_iam_policy_document.dbreader_assume_role_policy.json
-}
-
-resource "aws_iam_policy" "carol_assume_dbreader_policy" {
-  name        = "CarolAssumeDbReaderPolicy"
-  description = "Allow Carol to assume the dbreader role"
-  policy      = data.aws_iam_policy_document.carol_assume_role_policy.json
-}
-
 data "aws_iam_policy_document" "carol_assume_role_policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -567,6 +546,11 @@ data "aws_iam_policy_document" "carol_assume_role_policy" {
   }
 }
 
+resource "aws_iam_policy" "carol_assume_dbreader_policy" {
+  name   = "CarolAssumeDbReaderPolicy"
+  policy = data.aws_iam_policy_document.carol_assume_role_policy.json
+}
+
 resource "aws_iam_user_policy_attachment" "carol_assume_role" {
   user       = aws_iam_user.carol.name
   policy_arn = aws_iam_policy.carol_assume_dbreader_policy.arn
@@ -575,13 +559,55 @@ resource "aws_iam_user_policy_attachment" "carol_assume_role" {
 
 ### Read the database with the user using the role in the CLI
 
+Carol can now assume the `dbreader` role in the CLI. To see this, run the following command in the terminal:
+
 ```bash
-AWS_ACCESS_KEY_ID="<Carol's access key>" AWS_SECRET_ACCESS_KEY="<Carol's secret access key>" aws sts assume-role --role-arn "arn:aws:iam::<ACCOUNT_ID>:role/dbreader" --role-session-name "CarolSession"
+AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws sts assume-role --role-arn "arn:aws:iam::<ACCOUNT_ID>:role/dbreader" --role-session-name "CarolSession"
 ```
 
-  - give examples
-- how do we use it with AWS
-    - Connecting AWS and Terraform
+AWS will return temporary credentials that look like the below:
+
+```bash
+"Credentials": {
+        "AccessKeyId": "IAQSCRAQJDTNAC",
+        "SecretAccessKey": "ozJXhWZNrpPyvttxqV5HE5gzn",
+        "SessionToken": "2luX2VjEIn//////////wEaCIMEYCIQCuOjdHxeoGsoIQiN+kooZVF+UOyBz8=",
+        "Expiration": "2023-11-08T17:30:31+00:00"
+    },
+    "AssumedRoleUser": {
+        "AssumedRoleId": "AROAQSCRAQJDQTYW57TM2:CarolSession",
+        "Arn": "arn:aws:sts::08460:assumed-role/dbreader/CarolSession"
+    }
+}
+```
+
+Run the following command for Carol to access the DynamoDB table, but use the access key and secret key returned in the session credentials:
+
+```bash
+AWS_ACCESS_KEY_ID='<Session access key>' AWS_SECRET_ACCESS_KEY='<Session secret access key>' AWS_SESSION_TOKEN='<Session token></Session>' aws dynamodb scan --table-name Person --region eu-west-1
+```
+
+Be sure not to remove newlines from your session token or the command wail. The output should be:
+
+```bash
+{
+    "Items": [
+        {
+            "Id": {
+                "S": "1"
+            },
+            "Email": {
+                "S": "alice@example.com"
+            }
+        }
+    ],
+    "Count": 1,
+    "ScannedCount": 1,
+    "ConsumedCapacity": null
+}
+```
+
+Terraform has successfully given Carol temporary access to read the table for Alice's email address.
 
 > Users want to use Terraform to create and manage IAM users and roles on AWS.
 This is both for convenience (avoid repetitive UI actions) and compliance/governance (if you Terraform scripts are in git, you can prove who had access to what resource when, and that they are correctly offboarded from resources when needed)
