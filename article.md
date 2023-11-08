@@ -19,6 +19,7 @@
     - [Add a row to the table](#add-a-row-to-the-table)
     - [Create a user](#create-a-user-1)
     - [Create a role](#create-a-role-1)
+    - [Read the database through the CLI](#read-the-database-through-the-cli)
     - [Delete your temporary administrator](#delete-your-temporary-administrator)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
   - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
@@ -393,7 +394,9 @@ aws_dynamodb_table.person: Creation complete after 10s [id=Person]
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ```
 
-Note that Terraform created the file `terraform.tfstate`, to represent and track your AWS configuration. If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that it did not create and are not in the state file. You can use the `import` command to include existing AWS infrastructure in your Terraform configuration.
+If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that it did not create and are not in the state file. You can use the `import` command to include existing AWS infrastructure in your Terraform configuration.
+
+Note that Terraform created the file `terraform.tfstate`, to represent and track your AWS configuration. This file is essential to Terraform and must be safely kept and backed up, but also contains private infrastructure information and so should not be stored in Git. Include `terraform.tfstate*` in your `.gitignore` file.
 
 ### Add a row to the table
 
@@ -412,7 +415,108 @@ If you browse to the database in the AWS console and "Explore table items", you 
 
 ### Create a user
 
+```terraform
+resource "aws_iam_user" "carol" {
+  name = "carol"
+}
+
+resource "aws_iam_access_key" "carol_key" {
+  user = aws_iam_user.carol.name
+}
+```
+
+The output is:
+
+```bash
+/workspace # terraform apply
+aws_dynamodb_table.person2: Refreshing state... [id=Person2]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_iam_access_key.carol_key will be created
+  + resource "aws_iam_access_key" "carol_key" {
+      + create_date                    = (known after apply)
+      + encrypted_secret               = (known after apply)
+      + encrypted_ses_smtp_password_v4 = (known after apply)
+      + id                             = (known after apply)
+      + key_fingerprint                = (known after apply)
+      + secret                         = (sensitive value)
+      + ses_smtp_password_v4           = (sensitive value)
+      + status                         = "Active"
+      + user                           = "carol"
+    }
+
+  # aws_iam_user.carol will be created
+  + resource "aws_iam_user" "carol" {
+      + arn           = (known after apply)
+      + force_destroy = false
+      + id            = (known after apply)
+      + name          = "carol"
+      + path          = "/"
+      + tags_all      = (known after apply)
+      + unique_id     = (known after apply)
+    }
+
+Plan: 2 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+aws_iam_user.carol: Creating...
+aws_iam_user.carol: Creation complete after 2s [id=carol]
+aws_iam_access_key.carol_key: Creating...
+aws_iam_access_key.carol_key: Creation complete after 1s [id=AKIAQSCRAQJDWEEF5AEL]
+
+Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+```
+
+Carol's access key and secret are now in the `terraform.tfstate` file. Open the file and note them. Now let's use the keys to log in to AWS using the CLI and see if we can access the Person table. In the Docker terminal run:
+
+```bash
+```
+
+
 ### Create a role
+
+
+```terraform
+resource "aws_iam_role" "dbreader" {
+  name = "dbreader"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          "AWS": "arn:aws:iam::038824608327:root" # TODO
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "dbreader_dynamodb_readonly" {
+  role       = aws_iam_role.dbreader.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
+}
+```
+
+### Read the database through the CLI
+
+```bash
+aws sts assume-role --role-arn "arn:aws:iam::<ACCOUNT_ID>:role/dbreader" --role-session-name "CarolSession"
+```
+
+
+
 
   - give examples
 - how do we use it with AWS

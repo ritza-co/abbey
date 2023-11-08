@@ -28,3 +28,11 @@ resource "aws_dynamodb_table" "person2" {
     type = "S"
   }
 }
+
+resource "aws_iam_user" "carol" {
+  name = "carol"
+}
+
+resource "aws_iam_access_key" "carol_key" {
+  user = aws_iam_user.carol.name
+}
