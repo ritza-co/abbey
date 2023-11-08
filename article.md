@@ -425,6 +425,8 @@ resource "aws_iam_access_key" "carol_key" {
 }
 ```
 
+Run `terraform apply`.
+
 The output is:
 
 ```bash
@@ -476,19 +478,27 @@ aws_iam_access_key.carol_key: Creation complete after 1s [id=AKIAQSCRAQJDWEEF5AE
 Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 ```
 
-Carol's access key and secret are now in the `terraform.tfstate` file. Open the file and note them. Now let's use the keys to log in to AWS using the CLI and see if we can access the Person table. In the Docker terminal run:
+Carol's access key and secret are now in the `terraform.tfstate` file. Open the file and note them. Now we can use the keys to log in to AWS using the CLI and see if we can access the Person table. Instead of rerunning `aws configure` and changing your default credentials, let's just pass Carol's keys into the CLI for one command. In the Docker terminal run:
 
 ```bash
+AWS_ACCESS_KEY_ID="<Carol's access key>" AWS_SECRET_ACCESS_KEY="<Carol's secret access key>" aws s3 ls
+
+AWS_ACCESS_KEY_ID="AKIAQSCRAQJDWEEF5AEL" AWS_SECRET_ACCESS_KEY="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" aws s3 ls
 ```
 
+As expected, Carol does not yet have database access.
+
+```bash
+An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
+```
 
 ### Create a role
 
+Add the following code to your `main.tf` file to create a role that access to the DynamoDB table that Carol can assume. Update the `Principal` with your account number, and the `DateLessThan` to be tomorrow.
 
 ```terraform
 resource "aws_iam_role" "dbreader" {
   name = "dbreader"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -498,6 +508,9 @@ resource "aws_iam_role" "dbreader" {
         Principal = {
           "AWS": "arn:aws:iam::038824608327:root" # TODO
         },
+        Condition: {
+          DateLessThan: {"aws:CurrentTime": "2023-11-08T23:59:59Z"}
+        }
       },
     ],
   })
@@ -507,6 +520,16 @@ resource "aws_iam_role_policy_attachment" "dbreader_dynamodb_readonly" {
   role       = aws_iam_role.dbreader.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
 }
+```
+
+The resource creates the role for your account with an expiry date. The second resource is a permission to access DynamoDB, with a link to the AWS resource `name` of the Terraform role called `dbreader` created above. This is an example of how Terraform configuration files abstract the details of the underlying cloud provider: we're using the config file name of the resource, not AWS name.
+
+Run `terraform apply`.
+
+The output is:
+
+```bash
+
 ```
 
 ### Read the database through the CLI
