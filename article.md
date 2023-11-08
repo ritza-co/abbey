@@ -8,6 +8,7 @@
     - [Create a database](#create-a-database)
     - [Create a user](#create-a-user)
     - [Create a role](#create-a-role)
+    - [Request access to the database](#request-access-to-the-database)
     - [Read the database with the user using the role](#read-the-database-with-the-user-using-the-role)
     - [How to limit Bob's access to the table?](#how-to-limit-bobs-access-to-the-table)
   - [Use Terraform to manage users](#use-terraform-to-manage-users)
@@ -19,7 +20,9 @@
     - [Add a row to the table](#add-a-row-to-the-table)
     - [Create a user](#create-a-user-1)
     - [Create a role](#create-a-role-1)
-    - [Read the database through the CLI](#read-the-database-through-the-cli)
+    - [Request access to the database](#request-access-to-the-database-1)
+    - [Read the database with the user using the role in the CLI](#read-the-database-with-the-user-using-the-role-in-the-cli)
+  - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
     - [Delete your temporary administrator](#delete-your-temporary-administrator)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
   - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
@@ -129,7 +132,7 @@ Finally, we create a role with permissions to read from the Person table:
 
 Now our example setup is complete and ready to test.
 
-### Read the database with the user using the role
+### Request access to the database
 
 Bob wants the latest email addresses for all customers and so wants to access the Person table. He emails an AWS administrator at his company and asks for access.
 
@@ -157,6 +160,8 @@ The administrator then logs in to the console and does the following:
 - Click "Create policy".
 
 The administrator then replies to Bob's email, saying that he now has permissions to read the database.
+
+### Read the database with the user using the role
 
 Bob logs in to the AWS website, entering the company's account identifier, his name `bob`, and the password `P4ssword_`. He does the following:
 
@@ -482,8 +487,6 @@ Carol's access key and secret are now in the `terraform.tfstate` file. Open the 
 
 ```bash
 AWS_ACCESS_KEY_ID="<Carol's access key>" AWS_SECRET_ACCESS_KEY="<Carol's secret access key>" aws s3 ls
-
-AWS_ACCESS_KEY_ID="AKIAQSCRAQJDWEEF5AEL" AWS_SECRET_ACCESS_KEY="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" aws s3 ls
 ```
 
 As expected, Carol does not yet have database access.
@@ -508,9 +511,7 @@ resource "aws_iam_role" "dbreader" {
         Principal = {
           "AWS": "arn:aws:iam::038824608327:root" # TODO
         },
-        Condition: {
-          DateLessThan: {"aws:CurrentTime": "2023-11-08T23:59:59Z"}
-        }
+        Condition: { }
       },
     ],
   })
@@ -526,20 +527,57 @@ The resource creates the role for your account with an expiry date. The second r
 
 Run `terraform apply`.
 
-The output is:
+### Request access to the database
 
-```bash
+We now have a role with a permission to read the database, and a user, Carol. But Carol does not have permissions to assume roles. If she wants to access the Person table she must email an AWS administrator at her company and asks for access.
 
+The administrator
+
+```terraform
+data "aws_iam_policy_document" "dbreader_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_user.carol.arn]
+    }
+  }
+}
+
+resource "aws_iam_role" "dbreader" {
+  name               = "dbreader"
+  assume_role_policy = data.aws_iam_policy_document.dbreader_assume_role_policy.json
+}
+
+resource "aws_iam_policy" "carol_assume_dbreader_policy" {
+  name        = "CarolAssumeDbReaderPolicy"
+  description = "Allow Carol to assume the dbreader role"
+  policy      = data.aws_iam_policy_document.carol_assume_role_policy.json
+}
+
+data "aws_iam_policy_document" "carol_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    resources = [aws_iam_role.dbreader.arn]
+    condition {
+      test     = "DateLessThan"
+      variable = "aws:CurrentTime"
+      values   = ["2023-11-08T23:59:59Z"]
+    }
+  }
+}
+
+resource "aws_iam_user_policy_attachment" "carol_assume_role" {
+  user       = aws_iam_user.carol.name
+  policy_arn = aws_iam_policy.carol_assume_dbreader_policy.arn
+}
 ```
 
-### Read the database through the CLI
+### Read the database with the user using the role in the CLI
 
 ```bash
-aws sts assume-role --role-arn "arn:aws:iam::<ACCOUNT_ID>:role/dbreader" --role-session-name "CarolSession"
+AWS_ACCESS_KEY_ID="<Carol's access key>" AWS_SECRET_ACCESS_KEY="<Carol's secret access key>" aws sts assume-role --role-arn "arn:aws:iam::<ACCOUNT_ID>:role/dbreader" --role-session-name "CarolSession"
 ```
-
-
-
 
   - give examples
 - how do we use it with AWS
@@ -559,6 +597,9 @@ docker pull hashicorp/terraform:1.6
     - How do I manage existing IAM Users and Roles (e.g. those created initially using the AWS Web Console) with Terraform
     - (Can either also set up a resource like an S3 bucket via Terraform or manually via the UI to use as an example of what the role allows the user to do)
   - Make changes to the existing user (e.g. revoke access to the S3 bucket again)
+
+## Advantages and disadvantages of Terraform
+
 
 
 ### Delete your temporary administrator

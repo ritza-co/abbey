@@ -10,7 +10,10 @@ terraform {
 
 provider "aws" { region  = "eu-west-1" }
 
-# create database
+
+# create database Person
+# -----------------------------------
+
 resource "aws_dynamodb_table" "person2" {
   name           = "Person2"
   billing_mode   = "PROVISIONED"
@@ -30,7 +33,10 @@ resource "aws_dynamodb_table" "person2" {
   }
 }
 
-#create user
+
+# create user carol
+# -----------------------------------
+
 resource "aws_iam_user" "carol" {
   name = "carol"
 }
@@ -39,7 +45,10 @@ resource "aws_iam_access_key" "carol_key" {
   user = aws_iam_user.carol.name
 }
 
-# create role
+
+# create dbreader role
+# -----------------------------------
+
 resource "aws_iam_role" "dbreader" {
   name = "dbreader"
   assume_role_policy = jsonencode({
@@ -49,11 +58,9 @@ resource "aws_iam_role" "dbreader" {
         Action = "sts:AssumeRole",
         Effect = "Allow",
         Principal = {
-          "AWS": "arn:aws:iam::038824608327:root" # TODO
+          "AWS": "arn:aws:iam::038824608327:root"
         },
-        Condition: {
-          DateLessThan: {"aws:CurrentTime": "2023-11-08T23:59:59Z"}
-        }
+        Condition: {  }
       },
     ],
   })
@@ -63,3 +70,5 @@ resource "aws_iam_role_policy_attachment" "dbreader_dynamodb_readonly" {
   role       = aws_iam_role.dbreader.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
 }
+
+
