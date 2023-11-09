@@ -639,14 +639,18 @@ Abbey is [free](https://www.abbey.io/pricing/) for teams of twenty people or few
 
 ### Install Abbey
 
+In the AWS web console for the IAM service:
+- Create a group called `readergroup`, with the permission `AmazonDynamoDBReadOnlyAccess`.
+
+Install Abbey:
 - Register an account at https://accounts.abbey.io/sign-up.
-- Under "Settings" — "API Tokens", create a new Abbey API key. Note that Abbey's [documentation on keys ](https://docs.abbey.io/admin/managing-api-keys#creating-new-api-keys) refers you to a "Developers" tab that does not exist. Rather follow this tutorial. (Also, although the tab is called "API Tokens" and the buttons are called "API Keys", don't be confused — these terms seem to mean the same thing.)
+- Under "Settings" — "API Tokens", create a new Abbey API key. (Although the tab is called "API Tokens" and the buttons are called "API Keys", don't be confused — these terms mean the same thing. Note that Abbey's [documentation on keys ](https://docs.abbey.io/admin/managing-api-keys#creating-new-api-keys) refers you to a "Developers" tab that does not exist. Rather follow this tutorial.)
 - Browse to https://github.com/abbeylabs/abbey-starter-kit-aws-iam.
 - Click "Use this template" → "Create a new repository". This will fork the repository to your GitHub account.
 - Make it a private repository for safety and name it `abbeytest`.
 - Clone the repository to your computer into the `workspace\abbeytest` folder.
 
-Note that Terraform's list of [starter kit repositories](https://github.com/orgs/abbeylabs/repositories?language=&q=abbey-starter-kit&sort=&type=all) contains both `abbey-starter-kit-terraform-cloud` and `abbey-starter-kit-aws-iam`. Even though the AWS kits don't mention Terraform in their name, they still use Terraform. Don't use the Terraform cloud kit, as that is a paid Terraform service.
+Note that Terraform's list of [starter kit repositories](https://github.com/orgs/abbeylabs/repositories?language=&q=abbey-starter-kit&sort=&type=all) contains both `abbey-starter-kit-terraform-cloud` and `abbey-starter-kit-aws-iam`. Even though the AWS kits don't mention Terraform in their name, all kits use Terraform. Don't use the Terraform cloud kit, as that is a paid Terraform service.
 
 - Browse to https://app.abbey.io/connections.
 - Click "Create a Connection".
@@ -654,20 +658,35 @@ Note that Terraform's list of [starter kit repositories](https://github.com/orgs
 - Select "Only select repositories", select `abbeytest`, and click "Install & Authorize".
   ![Abbey connected to GitHub](./assets/abbeyConnection.jpg)
 
-In the AWS web console for the IAM service:
-- Create a group called `readergroup`, with the permission `AmazonDynamoDBReadOnlyAccess`.
--
+In the cloned repository you have a new Terraform configuration file, `workspace/abbeytest/main.tf`.
+- Change the `provider` to Ireland:
+  ```terraform
+  provider "aws" { region = "eu-west-1" }
+  ```
+- Change `reviewers` to the email address you used to register on `accounts.abbey.io`:
+  ```terraform
+  reviewers = { one_of = ["yourname@example.com"] }
+  ```
+- Change the `output` `location` to the `abbeytest` GitHub repository URL:
+  ```terraform
+  location = "github://yourname/abbeytest/access.tf"
+  ```
+- Change the `user_1` identity email to your Abbey email address. In this simple case, you're using the same email address for the reviewer (administrator) and the requester. In reality, you would add every employee in your organisation as a separate user in this file with their own email address.
+  ```terraform
+  abbey_account = "yourname@example.com"
+  ```
 
 ## Problems with Abbey
-Here are some problems/confusions I had as a new user trying to follow a quickstart for AWS:
+Here are some problems/confusions I had as a new user trying to follow the tutorial for AWS:
 - API Key <> API Token in their Settings page. Why are there two names?
 - Documentation on API Keys says there is a Developer tab, which doesn't exist.
 - Their documentation has language errors and should be run through a grammar checker:
   - "or when access should be revoke"
   - "write arbitrary rules via it's support of Open Policy Agent"
-- What does "Use this template - Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
+- What does "Use this template — Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
 
 ## Todo
+- add diagrams
 - How do you stop using abbey without breaking terraform?
 - Is abbey hosted locally or on their servers?
 - What Abbey offers on top of this either in terms of
