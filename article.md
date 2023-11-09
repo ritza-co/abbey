@@ -26,6 +26,8 @@
   - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
     - [Install Abbey](#install-abbey)
+  - [Problems with Abbey](#problems-with-abbey)
+  - [Todo](#todo)
 
 
 ## Introduction
@@ -643,17 +645,29 @@ Abbey is [free](https://www.abbey.io/pricing/) for teams of twenty people or few
 - Click "Use this template" → "Create a new repository". This will fork the repository to your GitHub account.
 - Make it a private repository for safety and name it `abbeytest`.
 - Clone the repository to your computer into the `workspace\abbeytest` folder.
+
+Note that Terraform's list of [starter kit repositories](https://github.com/orgs/abbeylabs/repositories?language=&q=abbey-starter-kit&sort=&type=all) contains both `abbey-starter-kit-terraform-cloud` and `abbey-starter-kit-aws-iam`. Even though the AWS kits don't mention Terraform in their name, they still use Terraform. Don't use the Terraform cloud kit, as that is a paid Terraform service.
+
 - Browse to https://app.abbey.io/connections.
 - Click "Create a Connection".
 - Name it `abbeytest` and click "Create".
 - Select "Only select repositories", select `abbeytest`, and click "Install & Authorize".
   ![Abbey connected to GitHub](./assets/abbeyConnection.jpg)
 
+In the AWS web console for the IAM service:
+- Create a group called `readergroup`, with the permission `AmazonDynamoDBReadOnlyAccess`.
+-
 
-Note that Terraform's list of [starter kit repositories](https://github.com/orgs/abbeylabs/repositories?language=&q=abbey-starter-kit&sort=&type=all) contains both `abbey-starter-kit-terraform-cloud` and `abbey-starter-kit-aws-iam`. Even though the AWS kits don't mention Terraform in their name, they still use Terraform. Don't use the Terraform cloud kit, as that is a paid Terraform service.
+## Problems with Abbey
+Here are some problems/confusions I had as a new user trying to follow a quickstart for AWS:
+- API Key <> API Token in their Settings page. Why are there two names?
+- Documentation on API Keys says there is a Developer tab, which doesn't exist.
+- Their documentation has language errors and should be run through a grammar checker:
+  - "or when access should be revoke"
+  - "write arbitrary rules via it's support of Open Policy Agent"
+- What does "Use this template - Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
 
-
-
+## Todo
 - How do you stop using abbey without breaking terraform?
 - Is abbey hosted locally or on their servers?
 - What Abbey offers on top of this either in terms of
