@@ -25,6 +25,7 @@
   - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
     - [Install Abbey](#install-abbey)
+    - [Make an access request with Abbey](#make-an-access-request-with-abbey)
   - [Delete your temporary administrator](#delete-your-temporary-administrator)
   - [Problems with Abbey](#problems-with-abbey)
   - [Todo](#todo)
@@ -688,6 +689,23 @@ In the cloned repository you have a new Terraform configuration file, `workspace
   ```terraform
   name = "arn:aws:iam::<Your AWS account number>:user/carol"
   ```
+- Set the group resource at the bottom of the file to `readergroup`:
+  ```terraform
+  data "aws_iam_group" "group1" {  # <- don't change this
+    group_name = "readergroup" # <- change this
+  }
+  ```
+- Save the `main.tf` file and commit and push to GitHub.
+- Browse to [https://github.com/<yourname>/abbeytest/actions](https://github.com/<yourname>/abbeytest/actions) and see that Abbey's Terraform action ran `apply` when you committed.
+
+### Make an access request with Abbey
+
+- Browse to https://app.abbey.io/resources
+  ![Request access in Abbey](./assets/request.jpg)
+- Request access. You will receive an email:
+  ![Access requested email](./assets/requestEmail.jpg)
+- Access will be immediately rejects. You will receive an email:
+  ![Request denied email](./assets/requestDenied.jpg)
 
 ## Delete your temporary administrator
 
@@ -695,12 +713,14 @@ If you've been following along with this tutorial, delete user Bob, so that his 
 
 ## Problems with Abbey
 Here are some problems/confusions I had as a new user trying to follow the tutorial for AWS:
+- Where is the `terraform.tfstate` file kept? It's not in github.
 - API Key <> API Token in their Settings page. Why are there two names?
 - Documentation on API Keys says there is a Developer tab, which doesn't exist.
 - Their documentation has language errors and should be run through a grammar checker:
   - "or when access should be revoke"
   - "write arbitrary rules via it's support of Open Policy Agent"
 - What does "Use this template — Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
+- In the https://docs.abbey.io/getting-started/tutorials/aws-managing-access-to-iam-groups tutorial, they never tell you what to call the group you create in IAM, or to change the name in the `main.tf` file to match it, so the GitHub action will always fail whenever you commit. That tutorial will be broken until it's updated to include this.
 
 ## Todo
 - add diagrams
