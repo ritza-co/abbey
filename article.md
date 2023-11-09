@@ -50,7 +50,9 @@ AWS [CloudFormation](https://aws.amazon.com/cloudformation/) | A configuration s
 Although AWS provides CloudFormation for configuration, we recommend Terraform in this article as it has a few benefits:
 - It separates planning and execution of your configuration changes, allowing you to see what will happen before you run your change.
 - If you ever want to include a cloud service other than AWS, Terraform can manage both with the same configuration files.
-- It is more powerful, with a large open-source ecosystem, and arguably simpler configuration language.
+- It is more powerful, with a large ecosystem, and arguably simpler configuration language.
+
+Note that versions of Terraform after 1.5 are no longer open source. The company changed their license in August 2023. You may soon want to switch to [OpenTofu](https://opentofu.org/), an open source form of Terraform that is currently working towards a stable release.
 
 ## Prerequisites
 
@@ -399,9 +401,9 @@ aws_dynamodb_table.person: Creation complete after 10s [id=Person]
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ```
 
-If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that it did not create and are not in the state file. You can use the `import` command to include existing AWS infrastructure in your Terraform configuration.
+If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that it did not create and are not in the state file. You can use the [import](https://developer.hashicorp.com/terraform/language/import) command to include existing AWS infrastructure in your Terraform configuration.
 
-Note that Terraform created the file `terraform.tfstate`, to represent and track your AWS configuration. This file is essential to Terraform and must be safely kept and backed up, but also contains private infrastructure information and so should not be stored in Git. Include `terraform.tfstate*` in your `.gitignore` file.
+Note that Terraform created the file `terraform.tfstate`, to represent and track your AWS configuration. This file is essential to Terraform and must be safely kept and backed up, but also contains secrets and so should not be stored in Git. Include `terraform.tfstate*` in your `.gitignore` file. Managing your Terraform state is a complicated topic. This [article](https://spacelift.io/blog/terraform-state) is a good starting point.
 
 ### Add a row to the table
 
