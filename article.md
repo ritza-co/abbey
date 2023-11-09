@@ -51,7 +51,7 @@ Although AWS provides CloudFormation for configuration, we recommend Terraform i
 - If you ever want to include a cloud service other than AWS, Terraform can manage both with the same configuration files.
 - It is more powerful, with a large ecosystem, and arguably simpler configuration language.
 
-Note that versions of Terraform after 1.5 are no longer open source. The company changed their license in August 2023. You may soon want to switch to [OpenTofu](https://opentofu.org/), an open source form of Terraform that is currently working towards a stable release. Currently OpenTofu is an identical replacement for Terraform you can use today, though they will probably diverge in the future.
+Note that versions of Terraform after 1.5 are no longer open source. The company changed their license in August 2023. You may soon want to switch to [OpenTofu](https://opentofu.org/), an open source form of Terraform that is currently working towards a stable release. Currently, OpenTofu is an exact substitute for Terraform, though they will diverge in syntax and features over time.
 
 ## Prerequisites
 
@@ -263,7 +263,7 @@ aws s3 ls
 
 ### Create a database
 
-Next, we are going to start working on a Terraform configuration file to provision our AWS infrastructure.
+Next, we are going to start on a Terraform configuration file to provision our AWS infrastructure.
 
 Create a file called `main.tf` in your shared workspace folder. Add the content below.
 
@@ -300,7 +300,7 @@ resource "aws_dynamodb_table" "person" {
 }
 ```
 
-This infrastructure specification does only one thing — create a DynamoDB table called Person in the AWS Ireland region. Note that the AWS table name `Person` is separate from the Terraform resource name `person2`. The latter can be whatever you want, and is used to refer to this resource anywhere in the Terraform configuration file.
+This infrastructure specification does only one thing — create a DynamoDB table called Person in the AWS Ireland region. Note that the AWS table name `Person` is separate from the Terraform resource name `person`. The latter can be whatever you want, and is used to refer to this resource anywhere in the Terraform configuration file.
 
 Although AWS CLI is installed, Terraform still has to download its provider, since we used AWS in the configuration file. Run this command in the Docker terminal:
 
@@ -421,6 +421,8 @@ If you browse to the database in the AWS console and "Explore table items", you 
 
 ### Create a user
 
+Add the following code to `main.tf`.
+
 ```terraform
 resource "aws_iam_user" "carol" {
   name = "carol"
@@ -484,7 +486,7 @@ aws_iam_access_key.carol_key: Creation complete after 1s [id=AKIAQSCRAQJDWEEF5AE
 Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 ```
 
-Carol's access key and secret are now in the `terraform.tfstate` file. Open the file and note them. Now we can use the keys to log in to AWS using the CLI and see if we can access the Person table. Instead of rerunning `aws configure` and changing your default credentials, let's just pass Carol's keys into the CLI for one command. In the Docker terminal run:
+Carol's access key and secret are now in the `terraform.tfstate` file. Open the file and note them. Now we can use the keys to log in to AWS using the CLI and see if we can access the Person table. Instead of rerunning `aws configure` and changing your default credentials, let's just pass Carol's keys into the CLI for one command. In the Docker terminal run the command below, replacing the keys inside single quotes:
 
 ```bash
 AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws s3 ls
@@ -510,7 +512,7 @@ resource "aws_iam_role" "dbreader" {
         Action = "sts:AssumeRole",
         Effect = "Allow",
         Principal = {
-          "AWS": "arn:aws:iam::038824608327:root"
+          "AWS": "arn:aws:iam::<Your Account Number>:root"
         },
         Condition: {  }
       },
@@ -530,9 +532,9 @@ Run `terraform apply`.
 
 ### Request access to the database
 
-We now have a role with a permission to read the database, and a user, Carol. But Carol does not have permissions to assume roles. If she wants to access the Person table she must email an AWS administrator at her company and asks for access.
+We now have a role with a permission to read the database, and a user, Carol. But Carol does not have permissions to assume roles. If she wants to access the Person table she must email an AWS administrator at her company to ask for access.
 
-As the administrator, you need to add the following to the configuration file and run `terraform apply` again:
+As the administrator, you need to add the code below to the configuration file and run `terraform apply` again. Update the `DateLessThan` value to tomorrow.
 
 ```terraform
 data "aws_iam_policy_document" "carol_assume_role_policy" {
@@ -560,7 +562,7 @@ resource "aws_iam_user_policy_attachment" "carol_assume_role" {
 
 ### Read the database with the user using the role in the CLI
 
-Carol can now assume the `dbreader` role in the CLI. To see this, run the following command in the terminal:
+Carol can now assume the `dbreader` role in the CLI. To see this, run the following command in the terminal, replacing your keys and account number:
 
 ```bash
 AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws sts assume-role --role-arn "arn:aws:iam::<ACCOUNT_ID>:role/dbreader" --role-session-name "CarolSession"
@@ -582,13 +584,13 @@ AWS will return temporary credentials that look like the below:
 }
 ```
 
-Run the following command for Carol to access the DynamoDB table, but use the access key and secret key returned in the session credentials:
+Run the following command for Carol to access the DynamoDB table, but use the access key and secret key returned in the session credentials above:
 
 ```bash
 AWS_ACCESS_KEY_ID='<Session access key>' AWS_SECRET_ACCESS_KEY='<Session secret access key>' AWS_SESSION_TOKEN='<Session token></Session>' aws dynamodb scan --table-name Person --region eu-west-1
 ```
 
-Be sure not to remove newlines from your session token or the command wail. The output should be:
+Be sure to remove newlines from your session token or the command will fail. The output should be:
 
 ```bash
 {
