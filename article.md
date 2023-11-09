@@ -22,10 +22,10 @@
     - [Create a role](#create-a-role-1)
     - [Request access to the database](#request-access-to-the-database-1)
     - [Read the database with the user using the role in the CLI](#read-the-database-with-the-user-using-the-role-in-the-cli)
-    - [Delete your temporary administrator](#delete-your-temporary-administrator)
   - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
     - [Install Abbey](#install-abbey)
+  - [Delete your temporary administrator](#delete-your-temporary-administrator)
   - [Problems with Abbey](#problems-with-abbey)
   - [Todo](#todo)
 
@@ -618,10 +618,6 @@ Terraform has successfully given Carol temporary access to read the table for Al
 
 Carol's access to the database will automatically expire tomorrow, if the administrator set the correct condition in the policy.
 
-### Delete your temporary administrator
-
-If you've been following along with this tutorial, delete user Bob, so that his administrator permissions cannot be exploited.
-
 ## Advantages and disadvantages of Terraform
 
 The advantages of using Terraform in our example, over AWS alone, are
@@ -652,6 +648,19 @@ Install Abbey:
 
 Note that Terraform's list of [starter kit repositories](https://github.com/orgs/abbeylabs/repositories?language=&q=abbey-starter-kit&sort=&type=all) contains both `abbey-starter-kit-terraform-cloud` and `abbey-starter-kit-aws-iam`. Even though the AWS kits don't mention Terraform in their name, all kits use Terraform. Don't use the Terraform cloud kit, as that is a paid Terraform service.
 
+Add your AWS access keys to the GitHub repository.
+- Browse to your `abbeytest` repository and click the "Settings" tab.
+- Click "Secrets and variables" — "Actions".
+- Click "New repository secret".
+  - Set the "Name" to `AWS_ACCESS_KEY_ID`
+  - Set the "Secret" to the Bob's access key from earlier. (Remember Bob is now an AWS administrator).
+  - Click "Add secret"
+- Add two more secrets in a similar way:
+  - `AWS_SECRET_ACCESS_KEY` set to Bob's secret key
+  - `ABBEY_TOKEN` set to the API key you created after registering on the Abbey website.
+
+![GitHub Abbey secrets](./assets/secret.jpg)
+
 - Browse to https://app.abbey.io/connections.
 - Click "Create a Connection".
 - Name it `abbeytest` and click "Create".
@@ -671,10 +680,18 @@ In the cloned repository you have a new Terraform configuration file, `workspace
   ```terraform
   location = "github://yourname/abbeytest/access.tf"
   ```
-- Change the `user_1` identity email to your Abbey email address. In this simple case, you're using the same email address for the reviewer (administrator) and the requester. In reality, you would add every employee in your organisation as a separate user in this file with their own email address.
+- Change the `user_1` identity email to your Abbey email address. (In this simple case, you're using the same email address for the reviewer (administrator) and the requester. In reality, you would add every employee in your organisation as a separate user in this file with their own email address.)
   ```terraform
   abbey_account = "yourname@example.com"
   ```
+- Set the IAM name to Carol, who you created in the previous section:
+  ```terraform
+  name = "arn:aws:iam::<Your AWS account number>:user/carol"
+  ```
+
+## Delete your temporary administrator
+
+If you've been following along with this tutorial, delete user Bob, so that his administrator permissions cannot be exploited.
 
 ## Problems with Abbey
 Here are some problems/confusions I had as a new user trying to follow the tutorial for AWS:
