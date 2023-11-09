@@ -25,7 +25,6 @@
     - [Delete your temporary administrator](#delete-your-temporary-administrator)
   - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
-  - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
 
 
 ## Introduction
@@ -641,12 +640,3 @@ https://github.com/abbeylabs/abbey-starter-kit-aws-iam
 - Simpler / easier?
 - More compliance?
 - Single interface to manage access to all resources, not just AWS (e.g. Snowflake).
-
-## Run AWS CLI version 2 in Docker
-
-TODO - delete this section, pointless given we have console and terraform and abbey.
-
-We use the [AWS CLI in Docker](https://hub.docker.com/r/amazon/aws-cli).
-```bash
-docker run --rm -it amazon/aws-cli:2.13.30 --version # delete the container when finished the command.
-```
