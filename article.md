@@ -25,6 +25,7 @@
     - [Delete your temporary administrator](#delete-your-temporary-administrator)
   - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
+    - [Install Abbey](#install-abbey)
 
 
 ## Introduction
@@ -633,7 +634,19 @@ The other difficulty in this example is the manual process required for a user t
 
 Abbey is [free](https://www.abbey.io/pricing/) for teams of twenty people or fewer.
 
-https://github.com/abbeylabs/abbey-starter-kit-aws-iam
+### Install Abbey
+
+- Register an account at https://accounts.abbey.io/sign-up.
+- Under "Settings" — "API Tokens", create a new Abbey API key. Note that Abbey's [documentation on keys ](https://docs.abbey.io/admin/managing-api-keys#creating-new-api-keys) refers you to a "Developers" tab that does not exist. Rather follow this tutorial. (Also, although the tab is called "API Tokens" and the buttons are called "API Keys", don't be confused — these terms seem to mean the same thing.)
+- Browse to https://github.com/abbeylabs/abbey-starter-kit-aws-iam.
+- Click "Use this template" → "Create a new repository". This will fork the repository to your GitHub account.
+- Make it a private repository and name it whatever you want.
+
+
+
+Note that Terraform's list of [starter kit repositories](https://github.com/orgs/abbeylabs/repositories?language=&q=abbey-starter-kit&sort=&type=all) contains both `abbey-starter-kit-terraform-cloud` and `abbey-starter-kit-aws-iam`. Even though the AWS kits don't mention Terraform in their name, they still use Terraform. Don't use the Terraform cloud kit, as that is a paid Terraform service.
+
+
 
 - How do you stop using abbey without breaking terraform?
 - Is abbey hosted locally or on their servers?
