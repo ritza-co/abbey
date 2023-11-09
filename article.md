@@ -22,8 +22,8 @@
     - [Create a role](#create-a-role-1)
     - [Request access to the database](#request-access-to-the-database-1)
     - [Read the database with the user using the role in the CLI](#read-the-database-with-the-user-using-the-role-in-the-cli)
-  - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
     - [Delete your temporary administrator](#delete-your-temporary-administrator)
+  - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
   - [Run AWS CLI version 2 in Docker](#run-aws-cli-version-2-in-docker)
 
@@ -52,7 +52,7 @@ Although AWS provides CloudFormation for configuration, we recommend Terraform i
 - If you ever want to include a cloud service other than AWS, Terraform can manage both with the same configuration files.
 - It is more powerful, with a large ecosystem, and arguably simpler configuration language.
 
-Note that versions of Terraform after 1.5 are no longer open source. The company changed their license in August 2023. You may soon want to switch to [OpenTofu](https://opentofu.org/), an open source form of Terraform that is currently working towards a stable release.
+Note that versions of Terraform after 1.5 are no longer open source. The company changed their license in August 2023. You may soon want to switch to [OpenTofu](https://opentofu.org/), an open source form of Terraform that is currently working towards a stable release. Currently OpenTofu is an identical replacement for Terraform you can use today, though they will probably diverge in the future.
 
 ## Prerequisites
 
@@ -611,28 +611,22 @@ Be sure not to remove newlines from your session token or the command wail. The 
 
 Terraform has successfully given Carol temporary access to read the table for Alice's email address.
 
-> Users want to use Terraform to create and manage IAM users and roles on AWS.
-This is both for convenience (avoid repetitive UI actions) and compliance/governance (if you Terraform scripts are in git, you can prove who had access to what resource when, and that they are correctly offboarded from resources when needed)
-
-
-We use the [Terraform CLI in Docker](https://hub.docker.com/r/hashicorp/terraform).
-```bash
-docker pull hashicorp/terraform:1.6
-```
-
-    - How do I create an IAM User with Terraform
-    - How do I create an IAM Role with Terraform
-    - How do I manage existing IAM Users and Roles (e.g. those created initially using the AWS Web Console) with Terraform
-    - (Can either also set up a resource like an S3 bucket via Terraform or manually via the UI to use as an example of what the role allows the user to do)
-  - Make changes to the existing user (e.g. revoke access to the S3 bucket again)
-
-## Advantages and disadvantages of Terraform
-
-
+Carol's access to the database will automatically expire tomorrow, if the administrator set the correct condition in the policy.
 
 ### Delete your temporary administrator
 
 If you've been following along with this tutorial, delete user Bob, so that his administrator permissions cannot be exploited.
+
+## Advantages and disadvantages of Terraform
+
+The advantages of using Terraform in our example, over AWS alone, are
+- It's faster to add text to a configuration file and run `apply` than use the AWS web console. ChatGPT can provide the correct syntax for any configuration you need too.
+- Your configuration files are stored in code, and so can be verified for safety and run by automated tools in a build pipeline.
+- Your AWS state is recorded in a state file, so you can see exactly what is live at any time without having to browse AWS.
+
+The main disadvantage of Terraform is having to manage your `terraform.tfstate` file. It must be kept safe, but not locally (because every administrator needs to use the latest version to avoid Terraform believing it has the incorrect state when running), and not in Git. You also might want to split your state file into modules to make it easier to understand to large configurations.
+
+The other difficulty in this example is the manual process required for a user to request database access from an administrator, and the potential for human error when the administrator grants expiring permissions.
 
 ## What is Abbey, and how does it make this easier?
 
