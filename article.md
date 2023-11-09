@@ -58,8 +58,9 @@ Note that versions of Terraform after 1.5 are no longer open source. The company
 
 To follow this tutorial, you'll need:
 
-- An AWS account. Free tier is fine. If you don't have an account, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup)
+- An AWS account. Free tier is fine. If you don't have an account, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup).
 - Docker, version 20 or greater. Docker allows you to run all commands in this tutorial, whether you're on Windows, Mac, or Linux. You're welcome to run commands directly on your machine instead, if you can handle differences that may occur.
+- Git and a GitHub account.
 
 > Terraform installed, AWS account up and running, IAM keys suitable for using with the terraform
 
@@ -640,8 +641,13 @@ Abbey is [free](https://www.abbey.io/pricing/) for teams of twenty people or few
 - Under "Settings" — "API Tokens", create a new Abbey API key. Note that Abbey's [documentation on keys ](https://docs.abbey.io/admin/managing-api-keys#creating-new-api-keys) refers you to a "Developers" tab that does not exist. Rather follow this tutorial. (Also, although the tab is called "API Tokens" and the buttons are called "API Keys", don't be confused — these terms seem to mean the same thing.)
 - Browse to https://github.com/abbeylabs/abbey-starter-kit-aws-iam.
 - Click "Use this template" → "Create a new repository". This will fork the repository to your GitHub account.
-- Make it a private repository and name it whatever you want.
-
+- Make it a private repository for safety and name it `abbeytest`.
+- Clone the repository to your computer into the `workspace\abbeytest` folder.
+- Browse to https://app.abbey.io/connections.
+- Click "Create a Connection".
+- Name it `abbeytest` and click "Create".
+- Select "Only select repositories", select `abbeytest`, and click "Install & Authorize".
+  ![Abbey connected to GitHub](./assets/abbeyConnection.jpg)
 
 
 Note that Terraform's list of [starter kit repositories](https://github.com/orgs/abbeylabs/repositories?language=&q=abbey-starter-kit&sort=&type=all) contains both `abbey-starter-kit-terraform-cloud` and `abbey-starter-kit-aws-iam`. Even though the AWS kits don't mention Terraform in their name, they still use Terraform. Don't use the Terraform cloud kit, as that is a paid Terraform service.
