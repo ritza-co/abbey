@@ -27,6 +27,7 @@
     - [Install Abbey](#install-abbey)
     - [Make an access request with Abbey](#make-an-access-request-with-abbey)
     - [Read the database with the user using the group in the CLI](#read-the-database-with-the-user-using-the-group-in-the-cli)
+    - [Revoke permissions](#revoke-permissions)
   - [Delete your temporary administrator](#delete-your-temporary-administrator)
   - [Problems with Abbey](#problems-with-abbey)
   - [Todo](#todo)
@@ -711,14 +712,38 @@ In the cloned repository you have a new Terraform configuration file, `workspace
 <!-- - Access will be immediately rejected. You will receive an email:
   ![Request denied email](./assets/requestDenied.jpg) -->
 
-- In the Abbey Approvals screen, click "Approve".
+- In the Abbey "Approvals" screen, click "Approve".
   ![Approve the request](./assets/approve.jpg)
 
 ### Read the database with the user using the group in the CLI
 
 Carol is now part of the `readergroup`. Check that she can read the database in the CLI:
 
+```bash
 AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws dynamodb scan --table-name Person --region eu-west-1
+```
+
+If you udpate the `abbeytest` repository from GitHub, you'll see a new file, `workspace/abbeytest/access.tf`. This is where Abbey maintains your access configuration:
+
+```terraform
+resource "aws_iam_user_group_membership" "user_carol_group_readergroup" {
+  user = "carol"
+  groups = ["readergroup"]
+}
+```
+
+### Revoke permissions
+
+In the Abbey "Approvals" screen, click "Revoke".
+  ![Revoke permissions](./assets/revoke.jpg)
+
+After waiting two minutes for Abbey to run the GitHub action to revoke access, you'll see that Carol can no longer read the database:
+
+```bash
+AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws dynamodb scan --table-name Person --region eu-west-1
+```
+
+`workspace/abbeytest/access.tf` will now be blank once more.
 
 ## Delete your temporary administrator
 
