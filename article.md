@@ -673,11 +673,11 @@ Add your AWS access keys to the GitHub repository.
 - Select "Only select repositories", select `abbeytest`, and click "Install & Authorize".
   ![Abbey connected to GitHub](./assets/abbeyConnection.jpg)
 
-In the cloned repository you have a new Terraform configuration file, `workspace/abbeytest/main.tf`. Open it and take a look. You can see that Abbey an AWS are present as Terraform providers at the top. The majority of the configuration is the `resource "abbey_grant_kit" "IAM_membership" {` section. A grant kit consists of:
+In the cloned repository you have a new Terraform configuration file, `workspace/abbeytest/main.tf`. Open it and take a look. You can see that Abbey and AWS are present as Terraform providers at the top. The majority of the configuration is the `resource "abbey_grant_kit" "IAM_membership" {` section. A grant kit consists of:
 - A name and description
 - A workflow, which can have several steps that regulate how access is given. In our file, it's a simple one step approval by an administrator.
-- A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resources to save adminstrators time.
-- An output, which describes what should happen if access is approved. In our file, access is given by adding a user to a group in the `access.tf` configuration file.
+- A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resource to save adminstrators time.
+- An output, which describes what should happen if access is approved. In our file, Abbey gives access by adding a user to a group in the `access.tf` configuration file.
 
 Let's change this grant starter kit to match the particulars of your AWS account:
 - Change the `provider` to Ireland:
