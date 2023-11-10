@@ -29,6 +29,9 @@
     - [Read the database with the user using the group in the CLI](#read-the-database-with-the-user-using-the-group-in-the-cli)
     - [Revoke permissions](#revoke-permissions)
   - [Delete your temporary administrator](#delete-your-temporary-administrator)
+    - [How exactly does Abbey work?](#how-exactly-does-abbey-work)
+    - [What are the benefits of Abbey over using Terraform alone?](#what-are-the-benefits-of-abbey-over-using-terraform-alone)
+  - [Questions for Abbey](#questions-for-abbey)
   - [Problems with Abbey](#problems-with-abbey)
   - [Todo](#todo)
 
@@ -670,7 +673,13 @@ Add your AWS access keys to the GitHub repository.
 - Select "Only select repositories", select `abbeytest`, and click "Install & Authorize".
   ![Abbey connected to GitHub](./assets/abbeyConnection.jpg)
 
-In the cloned repository you have a new Terraform configuration file, `workspace/abbeytest/main.tf`.
+In the cloned repository you have a new Terraform configuration file, `workspace/abbeytest/main.tf`. Open it and take a look. You can see that Abbey an AWS are present as Terraform providers at the top. The majority of the configuration is the `resource "abbey_grant_kit" "IAM_membership" {` section. A grant kit consists of:
+- A name and description
+- A workflow, which can have several steps that regulate how access is given. In our file, it's a simple one step approval by an administrator.
+- A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resources to save adminstrators time.
+- An output, which describes what should happen if access is approved. In our file, access is given by adding a user to a group in the `access.tf` configuration file.
+
+Let's change this grant starter kit to match the particulars of your AWS account:
 - Change the `provider` to Ireland:
   ```terraform
   provider "aws" { region = "eu-west-1" }
@@ -715,6 +724,15 @@ In the cloned repository you have a new Terraform configuration file, `workspace
 - In the Abbey "Approvals" screen, click "Approve".
   ![Approve the request](./assets/approve.jpg)
 
+
+You can see the GitHub actions Abbey ran to add Carol to the group in your repository's "Actions" tab — https://github.com/YourName/abbeytest/actions.
+
+Abbey makes access changes only through GitHub on commits. If you try to run Terraform locally it will fail because you do not have a state file. Even running `terraform init` will fail with:
+```bash
+Initializing the backend...
+Error refreshing state: HTTP remote state endpoint requires auth
+```
+
 ### Read the database with the user using the group in the CLI
 
 Carol is now part of the `readergroup`. Check that she can read the database in the CLI:
@@ -743,27 +761,54 @@ After waiting two minutes for Abbey to run the GitHub action to revoke access, y
 AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws dynamodb scan --table-name Person --region eu-west-1
 ```
 
-`workspace/abbeytest/access.tf` will now be blank once more.
+And `workspace/abbeytest/access.tf` will now be blank once more.
 
 ## Delete your temporary administrator
 
 If you've been following along with this tutorial, delete user Bob, so that his administrator permissions cannot be exploited.
 
+### How exactly does Abbey work?
+
+Abbey has two components:
+- The Abbey web application
+- Your GitHub repository with the Terraform configuration files.
+
+Users and administrators interact with the app to request, approve, and revoke access.
+
+When Abbey approves access, the app commits code to the GitHub repository, which runs a GitHub Action to run `terraform apply` using the Terraform state that is kept securely in the Abbey web server. No administrators in your company can see the secrets in the state file, but Abbey administrators have access to all your company's secrets.
+
+Abbey organizes this process with the following concepts:
+- Workflow: How someone requests access and who approves them.
+- Policies: Whether someone should automatically be denied access, and when their access should be automatically revoked.
+
+### What are the benefits of Abbey over using Terraform alone?
+
+- Simplicity: The initial configuration of Abbey will take a while, but after that users can see all resources on a single page, and request access in a single click, while administrators can grant it in another click. You no longer need to rely solely on email.
+- Auditing: Abbey stores all access requests and changes in your GitHub repository as pull requests, actions, and code merges. You can use this as an audit history to know who had access to a resource at any point in time.
+- Reduction of human error: Since granting access is automated, administrators no longer have to adjust Terraform configuration files manually and then apply them. This reduces the chance that access will be incorrectly set.
+
+
+## Questions for Abbey
+- What does "Use this template — Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
+- How exactly does the workflow work?
+- Where is the `terraform.tfstate` file kept? It's not in github. If it's kept in the Abbey server, then what's preventing Abbey admins from having full access to my company's access keys and performing harmful actions authenticated as me?
+- Where do I keep this GitHub repo in relation to my existing Terraform repository folder?
+- Why can't I manage user in Abbey website? It says `User metadata is unavailable. Set up Directory Sync to view user metadata`.
+- How do you stop using abbey without breaking terraform?
+- Is there localhost version of Abbey, like Terraform?
+- What can't it manage? I assume it can handle — users, groups, roles. But not databases, apps, secrets?
+
 ## Problems with Abbey
 Here are some problems/confusions I had as a new user trying to follow the tutorial for AWS:
-- Where is the `terraform.tfstate` file kept? It's not in github.
 - API Key <> API Token in their Settings page. Why are there two names?
 - Documentation on API Keys says there is a Developer tab, which doesn't exist.
 - Their documentation has language errors and should be run through a grammar checker:
   - "or when access should be revoke"
   - "write arbitrary rules via it's support of Open Policy Agent"
-- What does "Use this template — Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
 - In the https://docs.abbey.io/getting-started/tutorials/aws-managing-access-to-iam-groups tutorial, they never tell you what to call the group you create in IAM, or to change the name in the `main.tf` file to match it, so the GitHub action will always fail whenever you commit. That tutorial will be broken until it's updated to include this.
-- Why can't I manage user in Abbey website? It says `User metadata is unavailable. Set up Directory Sync to view user metadata`.
 
 ## Todo
 - add diagrams
-- How do you stop using abbey without breaking terraform?
 - Is abbey hosted locally or on their servers?
 - What Abbey offers on top of this either in terms of
 - Extra features (more control)
