@@ -26,6 +26,7 @@
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
     - [Install Abbey](#install-abbey)
     - [Make an access request with Abbey](#make-an-access-request-with-abbey)
+    - [Read the database with the user using the group in the CLI](#read-the-database-with-the-user-using-the-group-in-the-cli)
   - [Delete your temporary administrator](#delete-your-temporary-administrator)
   - [Problems with Abbey](#problems-with-abbey)
   - [Todo](#todo)
@@ -687,7 +688,7 @@ In the cloned repository you have a new Terraform configuration file, `workspace
   ```
 - Set the IAM name to Carol, who you created in the previous section:
   ```terraform
-  name = "arn:aws:iam::<Your AWS account number>:user/carol"
+  name = "carol"
   ```
 - Set the group resource at the bottom of the file to `readergroup`:
   ```terraform
@@ -704,8 +705,20 @@ In the cloned repository you have a new Terraform configuration file, `workspace
   ![Request access in Abbey](./assets/request.jpg)
 - Request access. You will receive an email:
   ![Access requested email](./assets/requestEmail.jpg)
-- Access will be immediately rejects. You will receive an email:
-  ![Request denied email](./assets/requestDenied.jpg)
+- Abbey will check if the request passes all policies. You will receive another email:
+  ![Checks passed email](./assets/checksPassed.jpg)
+
+<!-- - Access will be immediately rejected. You will receive an email:
+  ![Request denied email](./assets/requestDenied.jpg) -->
+
+- In the Abbey Approvals screen, click "Approve".
+  ![Approve the request](./assets/approve.jpg)
+
+### Read the database with the user using the group in the CLI
+
+Carol is now part of the `readergroup`. Check that she can read the database in the CLI:
+
+AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws dynamodb scan --table-name Person --region eu-west-1
 
 ## Delete your temporary administrator
 
@@ -721,6 +734,7 @@ Here are some problems/confusions I had as a new user trying to follow the tutor
   - "write arbitrary rules via it's support of Open Policy Agent"
 - What does "Use this template — Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
 - In the https://docs.abbey.io/getting-started/tutorials/aws-managing-access-to-iam-groups tutorial, they never tell you what to call the group you create in IAM, or to change the name in the `main.tf` file to match it, so the GitHub action will always fail whenever you commit. That tutorial will be broken until it's updated to include this.
+- Why can't I manage user in Abbey website? It says `User metadata is unavailable. Set up Directory Sync to view user metadata`.
 
 ## Todo
 - add diagrams

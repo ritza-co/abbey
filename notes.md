@@ -15,10 +15,10 @@
   - [x] Use simple template for zero cost budget
 - [x] Create IAM user that can use SimpleDB
 - [x] Make "hello world" SimpleDB app
-- [ ] Run through the [Spacelift](https://spacelift.io/blog/terraform-iam-role) blog post to discover anything wrong or outdated
-- [ ] Come up with a basic scenario to demonstrate using terraform + IAM to create and manage users/roles
-- [ ] Create the terraform code and steps needed to run through the scenario
-- [ ] Sign up for a free trial on Abbey
+- [x] Run through the [Spacelift](https://spacelift.io/blog/terraform-iam-role) blog post to discover anything wrong or outdated
+- [x] Come up with a basic scenario to demonstrate using terraform + IAM to create and manage users/roles
+- [x] Create the terraform code and steps needed to run through the scenario
+- [x] Sign up for a free trial on Abbey
 - [ ] Try out one of their hello world examples if possible
 - [ ] Figure out what extra value Abbey provides. Mention that and link to the existing Abbey IAM guide at end of article
 
