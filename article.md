@@ -792,7 +792,8 @@ Abbey organizes this process with the following concepts:
 
 ### What are the disadvantages of Abbey?
 
-Unlike Terraform, Abbey has no free local version. For companies of more than twenty users, you need to pay for the service. You can use it only on the Abbey website. If Abbey's site goes offline, you will no longer be able to manage your access through them.
+- Unlike Terraform/OpenTofu, Abbey has no free local version. For companies of more than twenty users, you need to pay for the service.
+- You can use it only on the Abbey website. If Abbey's site goes offline, you will no longer be able to manage your access through them.
 
 You aren't locked in to the service, however. If you wish to stop using Abbey, you can simply unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone.
 
