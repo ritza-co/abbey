@@ -277,7 +277,7 @@ aws s3 ls
 
 Next, we are going to start on a Terraform configuration file to provision our AWS infrastructure.
 
-Create a file called `main.tf` in your shared workspace folder. Add the content below.
+Create a file called `main.tf` in your shared workspace folder. Add the content below, written in HashiCorp Configuration Language (HCL).
 
 ```terraform
 terraform {
@@ -678,7 +678,7 @@ Add your AWS access keys to the GitHub repository.
 In the cloned repository you have a new Terraform configuration file, `workspace/abbeytest/main.tf`. Open it and take a look. You can see that Abbey and AWS are present as Terraform providers at the top. The majority of the configuration is the `resource "abbey_grant_kit" "IAM_membership" {` section. A grant kit consists of:
 - A name and description
 - A workflow, which can have several steps that regulate how access is given. In our file, it's a simple one step approval by an administrator.
-- A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resource to save adminstrators time.
+- A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resource to save administrators time. Policies don't use HCL, but rather the [Open Policy Agent](https://www.openpolicyagent.org/) Rego format. Here is where you could [add an expiry condition](https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration) similar to `DateLessThan` in AWS.
 - An output, which describes what should happen if access is approved. In our file, Abbey gives access by adding a user to a group in the `access.tf` configuration file.
 
 At the bottom, the file contains resources. This could be a database or role. In our case the resource is a user group.
@@ -785,6 +785,8 @@ Abbey organizes this process with the following concepts:
 - Workflow: How someone requests access and who approves them.
 - Policies: Whether someone should automatically be denied access, and when their access should be automatically revoked.
 
+https://docs.abbey.io/how-abbey-works/reference
+
 ### What are the benefits of Abbey over using Terraform alone?
 
 - Simplicity: The initial configuration of Abbey will take a while, but after that users can see all resources on a single page, and request access in a single click, while administrators can grant it in another click. You no longer need to rely solely on email.
@@ -794,7 +796,7 @@ Abbey organizes this process with the following concepts:
 ### What are the disadvantages of Abbey?
 
 - Unlike Terraform/OpenTofu, Abbey has no free local version. For companies of more than twenty users, you need to pay for the service.
-- You can use it only on the Abbey website. If Abbey's site goes offline, you will no longer be able to manage your access through them.
+- You can manage access only through the Abbey website. If Abbey's site goes offline, you will no longer be able to manage your access through them.
 
 You aren't locked in to the service, however. If you wish to stop using Abbey, you can simply unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone.
 
@@ -807,23 +809,26 @@ You aren't locked in to the service, however. If you wish to stop using Abbey, y
 In contrast, Abbey.io is transparent about their pricing and features, and is simple to set up and test for yourself. They are dedicated to access governance in Terraform, and were easy to use to write this article. Unless you need more than that, they're probably all you need for your organization.
 
 ## Questions for Abbey
+- What's the name of the company and the software? Abbey.io? Abbey? Abbey Labs?
 - What does "Use this template — Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
-- How exactly does the workflow work?
-- Where is the `terraform.tfstate` file kept? It's not in github. If it's kept in the Abbey server, then what's preventing Abbey admins from having full access to my company's access keys and performing harmful actions authenticated as me?
-- Where do I keep this GitHub repo in relation to my existing Terraform repository folder?
-- Why can't I manage user in Abbey website? It says `User metadata is unavailable. Set up Directory Sync to view user metadata`.
-- Is there localhost version of Abbey, like Terraform?
-- What can't it manage? I assume it can handle — users, groups, roles. But not databases, apps, secrets?
+- Where is the `terraform.tfstate` file kept? It's not in GitHub that I can see. If it's kept in the Abbey server, then what's preventing Abbey admins from having full access to my company's access keys and performing harmful actions authenticated as me? If I want to cancel my Abbey account, how do I get access to it to reconcile my own Terraform files?
+- Where do I keep this GitHub repo in relation to my existing Terraform repository folder? Can my existing Terraform config files use the same resources (database, users, groups, roles) that the Abbey files do, or must they be mutually exclusive set? If they can overlap, then how do they share state files?
+- Why can't I manage users in the Abbey website? It says `User metadata is unavailable. Set up Directory Sync to view user metadata`. When I tried creating a Directory Sync in Settings, Create says 'Response returned an error code'. How does these users relate to the users declared in AWS and/or Terraform?
+- Is there localhost version of Abbey, like Terraform? If not, what happens if your prod site goes offline?
+- What can't Abbey manage? I assume it can handle — users, groups, roles. But not databases, apps, secrets?
 - Who are your competitors and why are you better?
   - https://sourceforge.net/software/product/Abbey/alternatives
   - https://slashdot.org/software/p/Abbey/alternatives
-  - (Entitle.io is 36x more pricey. Sailtpoint? VaultOne? They don't really explain whta they do)
+  - (Entitle.io is 3x more pricey. Sailtpoint? VaultOne? They don't really explain what they do)
+- What's an example of a policy that would automatically deny someone access? I can't think of a reason for this
+- The article draft asked for Roles and Users in Terraform, but the AWS tutorial in Abbey is on Groups and Users. Is this just coincidence? Is approving a user to a role no different in Abbey from the group tutorial I followed that approved a user to a group? Your documentation on roles just points back to the groups tutorial (https://docs.abbey.io/use-cases/role-based-access-control-rbac).
+- How does permission expiry work? Does it set the DateLessThan condition in the AWS permission, or does the Abbey server have a cronjob that checks all expiry times in all customer policies every minute and commit to their GitHub repos if necessary? https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration
 
 ## Problems with Abbey
 Here are some problems/confusions I had as a new user trying to follow the tutorial for AWS:
-- API Key <> API Token in their Settings page. Why are there two names?
-- Documentation on API Keys says there is a Developer tab, which doesn't exist.
-- Their documentation has language errors and should be run through a grammar checker:
+- API Key <> API Token in their Settings page. Why are there two names? This happens in the documentation too.
+- Documentation on API Keys says there is a Developer tab, which doesn't exist. There are quite a few places where documentation screenshots don't match the site.
+- Their documentation has language errors:
   - "or when access should be revoke"
   - "write arbitrary rules via it's support of Open Policy Agent"
 - In the https://docs.abbey.io/getting-started/tutorials/aws-managing-access-to-iam-groups tutorial, they never tell you what to call the group you create in IAM, or to change the name in the `main.tf` file to match it, so the GitHub action will always fail whenever you commit. That tutorial will be broken until it's updated to include this.
