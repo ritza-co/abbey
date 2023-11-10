@@ -31,6 +31,7 @@
   - [Delete your temporary administrator](#delete-your-temporary-administrator)
     - [How exactly does Abbey work?](#how-exactly-does-abbey-work)
     - [What are the benefits of Abbey over using Terraform alone?](#what-are-the-benefits-of-abbey-over-using-terraform-alone)
+    - [What are the disadvantages of Abbey?](#what-are-the-disadvantages-of-abbey)
   - [Questions for Abbey](#questions-for-abbey)
   - [Problems with Abbey](#problems-with-abbey)
   - [Todo](#todo)
@@ -412,7 +413,7 @@ Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 
 If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that it did not create and are not in the state file. You can use the [import](https://developer.hashicorp.com/terraform/language/import) command to include existing AWS infrastructure in your Terraform configuration.
 
-Note that Terraform created the file `terraform.tfstate`, to represent and track your AWS configuration. This file is essential to Terraform and must be safely kept and backed up, but also contains secrets and so should not be stored in Git. Include `terraform.tfstate*` in your `.gitignore` file. Managing your Terraform state is a complicated topic. This [article](https://spacelift.io/blog/terraform-state) is a good starting point.
+Note that Terraform created the file `terraform.tfstate`, to represent and track your AWS configuration. This file is essential to Terraform and must be safely kept and backed up, but also contains secrets and so should not be stored in Git. Include `terraform.tfstate*` in your `.gitignore` file. Managing your Terraform state is a complicated topic. This [article](https://spacelift.io/blog/terraform-state) is a good starting point. Secrets can be stored in AWS Parameter Store (free) or Secrets Manager (paid and more powerful).
 
 ### Add a row to the table
 
@@ -679,6 +680,8 @@ In the cloned repository you have a new Terraform configuration file, `workspace
 - A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resource to save adminstrators time.
 - An output, which describes what should happen if access is approved. In our file, Abbey gives access by adding a user to a group in the `access.tf` configuration file.
 
+At the bottom, the file contains resources. This could be a database or role. In our case the resource is a user group.
+
 Let's change this grant starter kit to match the particulars of your AWS account:
 - Change the `provider` to Ireland:
   ```terraform
@@ -787,6 +790,11 @@ Abbey organizes this process with the following concepts:
 - Auditing: Abbey stores all access requests and changes in your GitHub repository as pull requests, actions, and code merges. You can use this as an audit history to know who had access to a resource at any point in time.
 - Reduction of human error: Since granting access is automated, administrators no longer have to adjust Terraform configuration files manually and then apply them. This reduces the chance that access will be incorrectly set.
 
+### What are the disadvantages of Abbey?
+
+Unlike Terraform, Abbey has no free local version. For companies of more than twenty users, you need to pay for the service. You can use it only on the Abbey website. If Abbey's site goes offline, you will no longer be able to manage your access through them.
+
+You aren't locked in to the service, however. If you wish to stop using Abbey, you can simply unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone.
 
 ## Questions for Abbey
 - What does "Use this template — Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
@@ -809,6 +817,7 @@ Here are some problems/confusions I had as a new user trying to follow the tutor
 
 ## Todo
 - add diagrams
+- add links
 - Is abbey hosted locally or on their servers?
 - What Abbey offers on top of this either in terms of
 - Extra features (more control)
