@@ -32,6 +32,7 @@
     - [How exactly does Abbey work?](#how-exactly-does-abbey-work)
     - [What are the benefits of Abbey over using Terraform alone?](#what-are-the-benefits-of-abbey-over-using-terraform-alone)
     - [What are the disadvantages of Abbey?](#what-are-the-disadvantages-of-abbey)
+    - [What are the alternatives to Abbey for access governance?](#what-are-the-alternatives-to-abbey-for-access-governance)
   - [Questions for Abbey](#questions-for-abbey)
   - [Problems with Abbey](#problems-with-abbey)
   - [Todo](#todo)
@@ -797,15 +798,26 @@ Abbey organizes this process with the following concepts:
 
 You aren't locked in to the service, however. If you wish to stop using Abbey, you can simply unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone.
 
+### What are the alternatives to Abbey for access governance?
+
+- Entitle.io claim to have a similar service, but have no free demo for us to try. They are also three times more expensive at the time of writing. Entitle charges [charge $360 000 for 500 users for a year](https://aws.amazon.com/marketplace/pp/prodview-kddzmmhfdezso), where you would pay only $120 000 for Abbey.
+- Sailpoint.com is similar, with no trial, and [charging $165 000](https://aws.amazon.com/marketplace/pp/prodview-pz66rdhrnioru).
+- VaultOne.com looks like it might do something similar, but we can't find detailed pricing or feature information on their site.
+
+In contrast, Abbey.io is transparent about their pricing and features, and is simple to set up and test for yourself. They are dedicated to access governance in Terraform, and were easy to use to write this article. Unless you need more than that, they're probably all you need for your organization.
+
 ## Questions for Abbey
 - What does "Use this template — Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
 - How exactly does the workflow work?
 - Where is the `terraform.tfstate` file kept? It's not in github. If it's kept in the Abbey server, then what's preventing Abbey admins from having full access to my company's access keys and performing harmful actions authenticated as me?
 - Where do I keep this GitHub repo in relation to my existing Terraform repository folder?
 - Why can't I manage user in Abbey website? It says `User metadata is unavailable. Set up Directory Sync to view user metadata`.
-- How do you stop using abbey without breaking terraform?
 - Is there localhost version of Abbey, like Terraform?
 - What can't it manage? I assume it can handle — users, groups, roles. But not databases, apps, secrets?
+- Who are your competitors and why are you better?
+  - https://sourceforge.net/software/product/Abbey/alternatives
+  - https://slashdot.org/software/p/Abbey/alternatives
+  - (Entitle.io is 36x more pricey. Sailtpoint? VaultOne? They don't really explain whta they do)
 
 ## Problems with Abbey
 Here are some problems/confusions I had as a new user trying to follow the tutorial for AWS:
