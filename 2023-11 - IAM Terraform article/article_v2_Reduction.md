@@ -39,9 +39,9 @@
 
 ## Introduction
 
-This article explains how to use Terraform to manage user access to a database in AWS. First, it explains how to configure users and roles in IAM to manage access. Then it explains how to use Terraform to do the same thing, with benefits. Finally, the article gives an overview of how using Abbey can make the process simpler.
+This article explains how to use Terraform to manage user access to a database in AWS. First we'll look at managing access directly in AWS, then how to use Terraform to do the same thing.
 
-TODO regulations
+The practice of access governance has become increasingly important over the last decade. Privacy laws are becoming more stringent. Businesses are running more of their infrastructure on the cloud, distributed worldwide. The moral, reputational, legal, and financial costs of exposing customer data are massive. Using Terraform to configure, encapsulate, limit, and audit access to your resources can help with this challenge.
 
 ### A few definitions
 
@@ -50,7 +50,7 @@ Below are AWS access management concepts that are used throughout this tutorial.
 Concept | Explanation
 --- | ---
 AWS account | A collection of AWS resources (e.g. databases and apps) and a fee. A small organization might have only one account, but a large one will probably have a few, helping to encapsulate billing, resources, and team members.
-AWS user | An identity, that can be used by a person or application. It has passwords, access keys, and permissions.
+AWS user | An identity, that can be used by a person or application. It uses passwords, access keys, and permissions.
 AWS group | A collection of users, that can be used to apply permissions to multiple users at once.
 AWS role | An identity that is not any specific person or application, but rather one that a user can temporarily assume that grants a set of permissions.
 AWS IAM | Identity and Access Management — the service that manages all users and permissions in your AWS account.
@@ -63,7 +63,7 @@ Although AWS provides CloudFormation for configuration, we recommend Terraform i
 - If you ever want to include a cloud service other than AWS, Terraform can manage both with the same configuration files.
 - It is more powerful, with a large ecosystem, and arguably simpler configuration language.
 
-Note that versions of Terraform after 1.5 are no longer open source. The company changed their license in August 2023. You may soon want to switch to [OpenTofu](https://opentofu.org/), an open source form of Terraform that is currently working towards a stable release. Currently, OpenTofu is an exact substitute for Terraform, though they will diverge in syntax and features over time.
+Note that versions of Terraform after 1.5 are no longer open source. The company changed their license in August 2023. You may soon want to switch to [OpenTofu](https://opentofu.org/), an open source fork of Terraform that is currently working towards a stable release. Currently, OpenTofu is an exact substitute for Terraform, though they will diverge in syntax and features over time.
 
 ## Prerequisites
 
@@ -89,13 +89,7 @@ First, we create a database table:
 - Browse to DynamoDB in the AWS web console.
 - Create a DynamoDb table called `Person` with partition key string `Id` and sort key string `Email`. Use the default table settings.
   ![Create a DynamoDB table](./assets/dynamodb.jpg)
-- Wait for AWS to create the table.
-- Add a row to the table:
-  - Click the table name.
-  - Click "Explore table items".
-  - Click "Create item".
-  - Enter "Id" `1` and "Email" `alice@example.com`.
-  - Click "Create item".
+- Add a row to the table by clicking "Explore table items", and entering "Id" `1` and "Email" `alice@example.com`.
     ![Add a row](./assets/addItem.jpg)
 
 ### Create a user
