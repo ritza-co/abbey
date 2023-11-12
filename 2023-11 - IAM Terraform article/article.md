@@ -30,8 +30,7 @@
     - [Revoke permissions](#revoke-permissions)
   - [Delete your temporary administrator](#delete-your-temporary-administrator)
     - [How exactly does Abbey work?](#how-exactly-does-abbey-work)
-      - [State management](#state-management)
-      - [How does Abbey fit into my existing state files and GitHub repository for my project?](#how-does-abbey-fit-into-my-existing-state-files-and-github-repository-for-my-project)
+    - [How does Abbey fit into my existing state files and GitHub repository for my project?](#how-does-abbey-fit-into-my-existing-state-files-and-github-repository-for-my-project)
     - [What are the benefits of Abbey over using Terraform alone?](#what-are-the-benefits-of-abbey-over-using-terraform-alone)
     - [What are the disadvantages of Abbey?](#what-are-the-disadvantages-of-abbey)
     - [What are the alternatives to Abbey for access governance?](#what-are-the-alternatives-to-abbey-for-access-governance)
@@ -786,19 +785,14 @@ Users and administrators interact with the app to request, approve, and revoke a
 
 When Abbey approves access, the app commits code to the GitHub repository, which runs a GitHub Action to run `terraform apply` using the Terraform state that is kept securely in the Abbey web server. No administrators in your company can see the secrets in the state file, but Abbey administrators have access to all your company's secrets.
 
-#### State management
-We recommend customers store their own state via something like S3, and reference that state like they would with a normal terraform deployment (good recommendations are here). TF state is kept on Abbey servers only if they’re using the Abbey-provided GitHub actions examples (that’s shown within our Quickstart and Starter Kits). Customers often will orchestrate Terraform deployments via a Terraform orchestration provider (TACO) like Terraform Cloud or Atlas, in which case the Terraform state will be managed by the TACOS provider, not Abbey.
+### How does Abbey fit into my existing state files and GitHub repository for my project?
+If you're new to Terraform, you might have added your `main.tf` file directory to your application's Git repository. It's better to make a new repository for it, dedicated to infrastructure management.
 
-If they’re writing the terraform code correctly and utilizing variables instead of hard-coding sensitive data, Abbey does not have access to any of the secrets or access keys. All the secrets should be passed to TF as variables, and the secrets should be defined in GitHub secrets and need to be passed into GitHub workflow. (If they’re using other TACOS, say TFC, that’ll be managed by the TACOS provider, e.g. Terraform Workspace Variables.)
+You should also make another repository, so that you have one repository for infrastructure configuration, and one for access configuration. If you prefer to use only one repository, you can split your Terraform files into separate [modules](https://developer.hashicorp.com/terraform/language/modules).
 
-If they need to download the terraform state from Abbey, they should be able to achieve it with the standard terraform state pull command
+Your configuration file, `main.tf` can also be split into separate files for easier management. Terraform will use all configuration files it has access to when updating your AWS state.
 
-#### How does Abbey fit into my existing state files and GitHub repository for my project?
-If you're new to Terraform, you might have added your `main.tf` file directory to your application Git repository. It's better to make a new repository for it, dedicated to infrastructure management.
-
-You should also make another repository, so that you have one repository for infrastructure configuration, and one for access configuration.
-
-Terraform defaults to storing your state file locally. And if you're using Abbey Starter Kits, the default is store the state file on the Abbey servers. Neither of these defaults is safe. Rather store your state file in a versioned online service specifically designed for it, like AWS S3 or Terraform Cloud. You should also use GitHub secrets and Terraform variables instead of hard-coding secrets into your configuration files.
+Terraform defaults to storing your state file locally. And if you're using Abbey Starter Kits, the default is store the state file on the Abbey servers. Neither of these defaults is safe. Rather store your state file in a versioned online service specifically designed for secrets, like AWS S3 or Terraform Cloud. Read more about this [here](https://developer.hashicorp.com/terraform/language/settings/backends/configuration). You should also use GitHub secrets and Terraform variables instead of hard-coding secrets into your configuration files.
 
 ### What are the benefits of Abbey over using Terraform alone?
 
@@ -811,9 +805,11 @@ Terraform defaults to storing your state file locally. And if you're using Abbey
 - Unlike Terraform/OpenTofu, Abbey has no free local version. For companies of more than twenty users, you need to pay for the service.
 - You can manage access only through the Abbey website. If Abbey's site goes offline, you will no longer be able to manage your access through them.
 
-You aren't locked in to the service, however. If you wish to stop using Abbey, you can simply unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone.
+You aren't locked in to the service, however. If you wish to stop using Abbey, you can unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone. Running `terraform state pull` will download your state file from a remote server, including from Abbey.
 
 ### What are the alternatives to Abbey for access governance?
+
+github tickets
 
 - Entitle.io claim to have a similar service, but have no free demo for us to try. They are also three times more expensive at the time of writing. Entitle charges [charge $360 000 for 500 users for a year](https://aws.amazon.com/marketplace/pp/prodview-kddzmmhfdezso), where you would pay only $120 000 for Abbey.
 - Sailpoint.com is similar, with no trial, and [charging $165 000](https://aws.amazon.com/marketplace/pp/prodview-pz66rdhrnioru).
