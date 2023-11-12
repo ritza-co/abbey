@@ -148,6 +148,8 @@ Now our example setup is complete and ready to test.
 
 Bob wants the latest email addresses for all customers and so wants to access the Person table. He emails an AWS administrator at his company and asks for access.
 
+TOOD GITHUB
+
 The administrator then logs in to the console and does the following:
 
 - Browse to "Users".
