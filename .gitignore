@@ -1,3 +1,5 @@
-.terraform/
+**/.terraform/
 *.tfstate*
-workspace/abbeytest
+**/workspace/abbeytest
+.~lock*
+.vscode

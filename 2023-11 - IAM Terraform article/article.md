@@ -33,7 +33,6 @@
     - [What are the benefits of Abbey over using Terraform alone?](#what-are-the-benefits-of-abbey-over-using-terraform-alone)
     - [What are the disadvantages of Abbey?](#what-are-the-disadvantages-of-abbey)
     - [What are the alternatives to Abbey for access governance?](#what-are-the-alternatives-to-abbey-for-access-governance)
-  - [Questions for Abbey](#questions-for-abbey)
   - [Problems with Abbey](#problems-with-abbey)
   - [Todo](#todo)
 
@@ -808,26 +807,10 @@ You aren't locked in to the service, however. If you wish to stop using Abbey, y
 
 In contrast, Abbey.io is transparent about their pricing and features, and is simple to set up and test for yourself. They are dedicated to access governance in Terraform, and were easy to use to write this article. Unless you need more than that, they're probably all you need for your organization.
 
-## Questions for Abbey
-- What's the name of the company and the software? Abbey.io? Abbey? Abbey Labs?
-- What does "Use this template — Create a new repository" do in GitHub? It seemed to have the same effect as forking the repository. If different, what extra stuff is it doing? If the same, why not use the fork button?
-- Where is the `terraform.tfstate` file kept? It's not in GitHub that I can see. If it's kept in the Abbey server, then what's preventing Abbey admins from having full access to my company's access keys and performing harmful actions authenticated as me? If I want to cancel my Abbey account, how do I get access to it to reconcile my own Terraform files?
-- Where do I keep this GitHub repo in relation to my existing Terraform repository folder? Can my existing Terraform config files use the same resources (database, users, groups, roles) that the Abbey files do, or must they be mutually exclusive set? If they can overlap, then how do they share state files?
-- Why can't I manage users in the Abbey website? It says `User metadata is unavailable. Set up Directory Sync to view user metadata`. When I tried creating a Directory Sync in Settings, Create says 'Response returned an error code'. How does these users relate to the users declared in AWS and/or Terraform?
-- Is there localhost version of Abbey, like Terraform? If not, what happens if your prod site goes offline?
-- What can't Abbey manage? I assume it can handle — users, groups, roles. But not databases, apps, secrets?
-- Who are your competitors and why are you better?
-  - https://sourceforge.net/software/product/Abbey/alternatives
-  - https://slashdot.org/software/p/Abbey/alternatives
-  - (Entitle.io is 3x more pricey. Sailtpoint? VaultOne? They don't really explain what they do)
-- What's an example of a policy that would automatically deny someone access? I can't think of a reason for this
-- The article draft asked for Roles and Users in Terraform, but the AWS tutorial in Abbey is on Groups and Users. Is this just coincidence? Is approving a user to a role no different in Abbey from the group tutorial I followed that approved a user to a group? Your documentation on roles just points back to the groups tutorial (https://docs.abbey.io/use-cases/role-based-access-control-rbac).
-- How does permission expiry work? Does it set the DateLessThan condition in the AWS permission, or does the Abbey server have a cronjob that checks all expiry times in all customer policies every minute and commit to their GitHub repos if necessary? https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration
-
 ## Problems with Abbey
 Here are some problems/confusions I had as a new user trying to follow the tutorial for AWS:
 - API Key <> API Token in their Settings page. Why are there two names? This happens in the documentation too.
-- Documentation on API Keys says there is a Developer tab, which doesn't exist. There are quite a few places where documentation screenshots don't match the site.
+- Documentation on API Keys says there is a Developer tab, which doesn't exist. There are a few places where documentation screenshots don't match the site.
 - Their documentation has language errors:
   - "or when access should be revoke"
   - "write arbitrary rules via it's support of Open Policy Agent"
