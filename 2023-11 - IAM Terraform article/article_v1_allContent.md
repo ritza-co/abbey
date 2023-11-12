@@ -35,8 +35,6 @@
     - [What are the benefits of Abbey over using Terraform alone?](#what-are-the-benefits-of-abbey-over-using-terraform-alone)
     - [What are the disadvantages of Abbey?](#what-are-the-disadvantages-of-abbey)
     - [What are the alternatives to Abbey for access governance?](#what-are-the-alternatives-to-abbey-for-access-governance)
-  - [Problems with Abbey](#problems-with-abbey)
-  - [Todo](#todo)
 
 
 ## Introduction
@@ -803,42 +801,28 @@ Terraform defaults to storing your state file locally. And if you're using Abbey
 
 ### What are the benefits of Abbey over using Terraform alone?
 
-- Simplicity: The initial configuration of Abbey will take a while, but after that users can see all resources on a single page, and request access in a single click, while administrators can grant it in another click. You no longer need to rely solely on email.
+- Simplicity: The initial configuration of Abbey will take a few hours, but after that users can see all resources on a single page, and request access in a single click, while administrators can grant it in another click. You no longer need to rely solely on email.
 - Auditing: Abbey stores all access requests and changes in your GitHub repository as pull requests, actions, and code merges. You can use this as an audit history to know who had access to a resource at any point in time.
 - Reduction of human error: Since granting access is automated, administrators no longer have to adjust Terraform configuration files manually and then apply them. This reduces the chance that access will be incorrectly set.
 
 ### What are the disadvantages of Abbey?
 
 - Unlike Terraform/OpenTofu, Abbey has no free local version. For companies of more than twenty users, you need to pay for the service.
-- You can manage access only through the Abbey website. If Abbey's site goes offline, you will no longer be able to manage your access through them. While waiting for the site to return you will have to make Terraform configuration changes manually again.
+- You can manage access only through the Abbey website. If Abbey's site goes offline, you will no longer be able to manage your access through it. While waiting for the site to return you will have to make Terraform configuration changes manually again.
 
-You aren't locked in to the service, however. If you wish to stop using Abbey, you can unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone. Running `terraform state pull` will download your state file from a remote server, including from Abbey.
+You aren't locked in to the service, however. If you wish to stop using Abbey, you can unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone. Running `terraform state pull` will download your state file from Abbey, like any remote server.
 
 ### What are the alternatives to Abbey for access governance?
 
-github tickets
+If you want to move beyond GitHub tickets and manual Terraform updates, there are several companies besides Abbey Labs offering services.
 
+These include: ConductorOne, Opal.dev, Indent.com, Entitle, Sailpoint, Saviynt, Okta Identity Governance, StrongDM, p0.dev, Raito.io, AccessOwl.io, Symops.com, GoTeleport.
+
+TODO ---------
 - Entitle.io claim to have a similar service, but have no free demo for us to try. They are also three times more expensive at the time of writing. Entitle charges [charge $360 000 for 500 users for a year](https://aws.amazon.com/marketplace/pp/prodview-kddzmmhfdezso), where you would pay only $120 000 for Abbey.
 - Sailpoint.com is similar, with no trial, and [charging $165 000](https://aws.amazon.com/marketplace/pp/prodview-pz66rdhrnioru).
 - VaultOne.com looks like it might do something similar, but we can't find detailed pricing or feature information on their site.
 
 In contrast, Abbey.io is transparent about their pricing and features, and is simple to set up and test for yourself. They are dedicated to access governance in Terraform, and were easy to use to write this article. Unless you need more than that, they're probably all you need for your organization.
+TODO ---------
 
-## Problems with Abbey
-Here are some problems/confusions I had as a new user trying to follow the tutorial for AWS:
-- API Key <> API Token in their Settings page. Why are there two names? This happens in the documentation too.
-- Documentation on API Keys says there is a Developer tab, which doesn't exist. There are a few places where documentation screenshots don't match the site.
-- Their documentation has language errors:
-  - "or when access should be revoke"
-  - "write arbitrary rules via it's support of Open Policy Agent"
-- In the https://docs.abbey.io/getting-started/tutorials/aws-managing-access-to-iam-groups tutorial, they never tell you what to call the group you create in IAM, or to change the name in the `main.tf` file to match it, so the GitHub action will always fail whenever you commit. That tutorial will be broken until it's updated to include this.
-
-## Todo
-- add diagrams
-- add links
-- Is abbey hosted locally or on their servers?
-- What Abbey offers on top of this either in terms of
-- Extra features (more control)
-- Simpler / easier?
-- More compliance?
-- Single interface to manage access to all resources, not just AWS (e.g. Snowflake).
