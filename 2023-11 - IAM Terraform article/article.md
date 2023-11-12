@@ -30,6 +30,8 @@
     - [Revoke permissions](#revoke-permissions)
   - [Delete your temporary administrator](#delete-your-temporary-administrator)
     - [How exactly does Abbey work?](#how-exactly-does-abbey-work)
+      - [State management](#state-management)
+      - [How does Abbey fit into my existing state files and GitHub repository for my project?](#how-does-abbey-fit-into-my-existing-state-files-and-github-repository-for-my-project)
     - [What are the benefits of Abbey over using Terraform alone?](#what-are-the-benefits-of-abbey-over-using-terraform-alone)
     - [What are the disadvantages of Abbey?](#what-are-the-disadvantages-of-abbey)
     - [What are the alternatives to Abbey for access governance?](#what-are-the-alternatives-to-abbey-for-access-governance)
@@ -41,20 +43,22 @@
 
 This article explains how to use Terraform to manage user access to a database in AWS. First, it explains how to configure users and roles in IAM to manage access. Then it explains how to use Terraform to do the same thing, with benefits. Finally, the article gives an overview of how using Abbey can make the process simpler.
 
+TODO regulations
+
 ### A few definitions
 
 Below are AWS access management concepts that are used throughout this tutorial.
 
 Concept | Explanation
 --- | ---
-AWS account | An AWS client's organization, consisting of team members, applications, databases, and billing.
-AWS user | An identity, that can be a person or application. It has passwords, access keys, and permissions.
+AWS account | A collection of AWS resources (e.g. databases and apps) and a fee. A small organization might have only one account, but a large one will probably have a few, helping to encapsulate billing, resources, and team members.
+AWS user | An identity, that can be used by a person or application. It has passwords, access keys, and permissions.
 AWS group | A collection of users, that can be used to apply permissions to multiple users at once.
 AWS role | An identity that is not any specific person or application, but rather one that a user can temporarily assume that grants a set of permissions.
 AWS IAM | Identity and Access Management — the service that manages all users and permissions in your AWS account.
+AWS Identity Center | Formerly, AWS Single Sign On. A service to manage users across multiple AWS accounts. We use IAM in this article instead of Identity Center because it's simpler to start with.
 AWS [CloudFormation](https://aws.amazon.com/cloudformation/) | A configuration service provided by AWS, that allows you to create and configure users and applications declaratively, in JSON or YAML files. Without using CloudFormation, you need to imperatively set up AWS components through the website (console), or by running commands through the AWS CLI in a terminal.
 [Terraform](https://www.terraform.io/) | An application similar to CloudFormation, that allows declarative configuration. However, Terraform is not created by AWS. It is a level of abstraction above AWS. Terraform can be run on any server you have access to, and uses the same configuration files to manage access on [different cloud providers](https://registry.terraform.io/), including Azure, AWS, and Google Cloud.
-[Abbey](https://www.abbey.io/) | A service that is a level of abstraction above Terraform. It is a web application where users can request access to cloud resources and administrators can approve them. Permissions are automatically adjusted in your connected Terraform GitHub account and configured on AWS.
 
 Although AWS provides CloudFormation for configuration, we recommend Terraform in this article as it has a few benefits:
 - It separates planning and execution of your configuration changes, allowing you to see what will happen before you run your change.
@@ -70,8 +74,6 @@ To follow this tutorial, you'll need:
 - An AWS account. Free tier is fine. If you don't have an account, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup).
 - Docker, version 20 or greater. Docker allows you to run all commands in this tutorial, whether you're on Windows, Mac, or Linux. You're welcome to run commands directly on your machine instead, if you can handle differences that may occur.
 - Git and a GitHub account.
-
-> Terraform installed, AWS account up and running, IAM keys suitable for using with the terraform
 
 ## Configure database access in AWS IAM manually
 
@@ -638,7 +640,11 @@ The other difficulty in this example is the manual process required for a user t
 
 ## What is Abbey, and how does it make this easier?
 
+[Abbey](https://www.abbey.io/) | A service that is a level of abstraction above Terraform. It is a web application where users can request access to cloud resources and administrators can approve them. Permissions are automatically adjusted in your connected Terraform GitHub account and configured on AWS.
+
 Abbey is [free](https://www.abbey.io/pricing/) for teams of twenty people or fewer.
+
+We are going to use Abbey to assign a user to a group, instead of a role, this time to see how it works.
 
 ### Install Abbey
 
@@ -677,7 +683,7 @@ Add your AWS access keys to the GitHub repository.
 In the cloned repository you have a new Terraform configuration file, `workspace/abbeytest/main.tf`. Open it and take a look. You can see that Abbey and AWS are present as Terraform providers at the top. The majority of the configuration is the `resource "abbey_grant_kit" "IAM_membership" {` section. A grant kit consists of:
 - A name and description
 - A workflow, which can have several steps that regulate how access is given. In our file, it's a simple one step approval by an administrator.
-- A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resource to save administrators time. Policies don't use HCL, but rather the [Open Policy Agent](https://www.openpolicyagent.org/) Rego format. Here is where you could [add an expiry condition](https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration) similar to `DateLessThan` in AWS.
+- A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resource to save administrators time. This is useful if a user is not a member of a department or country with permission to access a specific resource. Policies don't use HCL, but rather the [Open Policy Agent](https://www.openpolicyagent.org/) Rego format. Here is where you could [add an expiry condition](https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration). Since Abbey (and Terraform) can manage multiple cloud providers, you don't set an expiry date for access with AWS `DateLessThan`. Instead, Abbey servers will change your configuration files in GitHub and run Terraform at the date you specify.
 - An output, which describes what should happen if access is approved. In our file, Abbey gives access by adding a user to a group in the `access.tf` configuration file.
 
 At the bottom, the file contains resources. This could be a database or role. In our case the resource is a user group.
@@ -780,11 +786,19 @@ Users and administrators interact with the app to request, approve, and revoke a
 
 When Abbey approves access, the app commits code to the GitHub repository, which runs a GitHub Action to run `terraform apply` using the Terraform state that is kept securely in the Abbey web server. No administrators in your company can see the secrets in the state file, but Abbey administrators have access to all your company's secrets.
 
-Abbey organizes this process with the following concepts:
-- Workflow: How someone requests access and who approves them.
-- Policies: Whether someone should automatically be denied access, and when their access should be automatically revoked.
+#### State management
+We recommend customers store their own state via something like S3, and reference that state like they would with a normal terraform deployment (good recommendations are here). TF state is kept on Abbey servers only if they’re using the Abbey-provided GitHub actions examples (that’s shown within our Quickstart and Starter Kits). Customers often will orchestrate Terraform deployments via a Terraform orchestration provider (TACO) like Terraform Cloud or Atlas, in which case the Terraform state will be managed by the TACOS provider, not Abbey.
 
-https://docs.abbey.io/how-abbey-works/reference
+If they’re writing the terraform code correctly and utilizing variables instead of hard-coding sensitive data, Abbey does not have access to any of the secrets or access keys. All the secrets should be passed to TF as variables, and the secrets should be defined in GitHub secrets and need to be passed into GitHub workflow. (If they’re using other TACOS, say TFC, that’ll be managed by the TACOS provider, e.g. Terraform Workspace Variables.)
+
+If they need to download the terraform state from Abbey, they should be able to achieve it with the standard terraform state pull command
+
+#### How does Abbey fit into my existing state files and GitHub repository for my project?
+If you're new to Terraform, you might have added your `main.tf` file directory to your application Git repository. It's better to make a new repository for it, dedicated to infrastructure management.
+
+You should also make another repository, so that you have one repository for infrastructure configuration, and one for access configuration.
+
+Terraform defaults to storing your state file locally. And if you're using Abbey Starter Kits, the default is store the state file on the Abbey servers. Neither of these defaults is safe. Rather store your state file in a versioned online service specifically designed for it, like AWS S3 or Terraform Cloud. You should also use GitHub secrets and Terraform variables instead of hard-coding secrets into your configuration files.
 
 ### What are the benefits of Abbey over using Terraform alone?
 
