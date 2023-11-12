@@ -30,6 +30,7 @@
     - [Revoke permissions](#revoke-permissions)
   - [Delete your temporary administrator](#delete-your-temporary-administrator)
     - [How exactly does Abbey work?](#how-exactly-does-abbey-work)
+    - [What things can I manage with Abbey?](#what-things-can-i-manage-with-abbey)
     - [How does Abbey fit into my existing state files and GitHub repository for my project?](#how-does-abbey-fit-into-my-existing-state-files-and-github-repository-for-my-project)
     - [What are the benefits of Abbey over using Terraform alone?](#what-are-the-benefits-of-abbey-over-using-terraform-alone)
     - [What are the disadvantages of Abbey?](#what-are-the-disadvantages-of-abbey)
@@ -652,9 +653,9 @@ In the AWS web console for the IAM service:
 
 Install Abbey:
 - Register an account at https://accounts.abbey.io/sign-up.
-- Under "Settings" — "API Tokens", create a new Abbey API key. (Although the tab is called "API Tokens" and the buttons are called "API Keys", don't be confused — these terms mean the same thing. Note that Abbey's [documentation on keys ](https://docs.abbey.io/admin/managing-api-keys#creating-new-api-keys) refers you to a "Developers" tab that does not exist. Rather follow this tutorial.)
+- Under "Settings" — "API Tokens", create a new Abbey API key. (Although the tab is called "API Tokens" and the buttons are called "API Keys", don't be confused — these terms mean the same thing.)
 - Browse to https://github.com/abbeylabs/abbey-starter-kit-aws-iam.
-- Click "Use this template" → "Create a new repository". This will fork the repository to your GitHub account.
+- Click "Use this template" → "Create a new repository". This will create a copy of the repository in your GitHub account (unlike forking the repository, your copy [won't have the original's commit history](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
 - Make it a private repository for safety and name it `abbeytest`.
 - Clone the repository to your computer into the `workspace\abbeytest` folder.
 
@@ -716,6 +717,8 @@ Let's change this grant starter kit to match the particulars of your AWS account
   ```
 - Save the `main.tf` file and commit and push to GitHub.
 - Browse to [https://github.com/<yourname>/abbeytest/actions](https://github.com/<yourname>/abbeytest/actions) and see that Abbey's Terraform action ran `apply` when you committed.
+
+Users in Abbey have their own identity, determined by their email address, separate to any identities they may use in AWS. You can add users to your Abbey account in bulk to save time.
 
 ### Make an access request with Abbey
 
@@ -785,6 +788,10 @@ Users and administrators interact with the app to request, approve, and revoke a
 
 When Abbey approves access, the app commits code to the GitHub repository, which runs a GitHub Action to run `terraform apply` using the Terraform state that is kept securely in the Abbey web server. No administrators in your company can see the secrets in the state file, but Abbey administrators have access to all your company's secrets.
 
+### What things can I manage with Abbey?
+
+Abbey specializes in linking resources to users. Use it for any and all access management, but leave the resource provisioning itself in plain Terraform code.
+
 ### How does Abbey fit into my existing state files and GitHub repository for my project?
 If you're new to Terraform, you might have added your `main.tf` file directory to your application's Git repository. It's better to make a new repository for it, dedicated to infrastructure management.
 
@@ -803,7 +810,7 @@ Terraform defaults to storing your state file locally. And if you're using Abbey
 ### What are the disadvantages of Abbey?
 
 - Unlike Terraform/OpenTofu, Abbey has no free local version. For companies of more than twenty users, you need to pay for the service.
-- You can manage access only through the Abbey website. If Abbey's site goes offline, you will no longer be able to manage your access through them.
+- You can manage access only through the Abbey website. If Abbey's site goes offline, you will no longer be able to manage your access through them. While waiting for the site to return you will have to make Terraform configuration changes manually again.
 
 You aren't locked in to the service, however. If you wish to stop using Abbey, you can unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone. Running `terraform state pull` will download your state file from a remote server, including from Abbey.
 
