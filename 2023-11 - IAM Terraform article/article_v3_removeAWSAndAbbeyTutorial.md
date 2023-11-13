@@ -38,9 +38,8 @@ The practice of access governance has become increasingly important over the las
 
 To follow this tutorial, you'll need:
 
-- An AWS account. Free tier is fine. If you don't have an account, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup). AWS DynamoDB is always free to store 25 GB. Completing this tutorial will cost you no AWS fees.
+- An AWS account. Free tier is fine. If you don't have an account, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup). AWS DynamoDB is always free to store 25 GB. Completing this tutorial will incur no AWS fees.
 - Docker, version 20 or greater. Docker allows you to run all commands in this tutorial, whether you're on Windows, Mac, or Linux. You're welcome to run commands directly on your machine instead, if you can handle differences that may occur.
-- Git and a GitHub account.
 
 ## A few definitions
 

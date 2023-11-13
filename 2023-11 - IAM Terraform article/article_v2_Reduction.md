@@ -751,7 +751,7 @@ Abbey has two components:
 
 Users and administrators interact with the app to request, approve, and revoke access.
 
-When Abbey approves access, the app commits code to the GitHub repository, which runs a GitHub Action to run `terraform apply` using the Terraform state that is kept securely in the Abbey web server. No administrators in your company can see the secrets in the state file, but Abbey administrators have access to all your company's secrets.
+When Abbey approves access, the app commits code to the GitHub repository, which runs a GitHub Action to run `terraform apply` using the Terraform state that is kept securely in the Abbey web server.
 
 ### What things can I manage with Abbey?
 
