@@ -22,7 +22,7 @@
     - [Request access to the database](#request-access-to-the-database-1)
     - [Read the database with the user using the role in the CLI](#read-the-database-with-the-user-using-the-role-in-the-cli)
     - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
-  - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
+  - [What is Abbey and how does it make access to data easier?](#what-is-abbey-and-how-does-it-make-access-to-data-easier)
     - [Install Abbey](#install-abbey)
     - [Make an access request with Abbey](#make-an-access-request-with-abbey)
     - [Read the database with the user using the group in the CLI](#read-the-database-with-the-user-using-the-group-in-the-cli)
