@@ -99,7 +99,7 @@ Create a database table:
 Create a user who has no permissions by default and will request access to read the value from the table:
 
 - Browse to **IAM**.
-- Create a user called "bob".
+- Create a user called `bob`.
 - Enable "Provide user access to the AWS Management Console".
 - Give the user the password `P4ssword_`.
   ![Create user](./assets/createUser.jpg)
@@ -124,7 +124,7 @@ Now our example setup is complete and ready to test.
 
 Bob wants the latest email addresses for all customers and so wants to access the Person table. He emails an AWS administrator at his company and asks for access.
 
-Emailing is the first thing you should change when implementing access governance at your company. Emails are hard to audit and easy to delete. As the administrator, you should email Bob back and request that he log a GitHub issue with his request. When you have given him access, you can mark the issue as closed. This provides a time-stamped searchable audit history of access.
+Emailing is the first thing you should change when implementing access governance at your company. Emails are hard to audit and easy to delete. As the administrator, you should ask Bob to log a GitHub issue with his request. When you have given him access, you can mark the issue as closed. This provides a time-stamped searchable audit history of access.
 
 The administrator (you) logs in to the AWS web console and gives Bob permission to assume the `reader` role:
 
@@ -648,7 +648,7 @@ Add your AWS access keys to the GitHub repository.
 In the cloned repository, you have a new Terraform configuration file called `workspace/abbeytest/main.tf`. Open it and take a look. You can see that Abbey and AWS are present as Terraform providers at the top. The majority of the configuration is the `resource "abbey_grant_kit" "IAM_membership" {` section. A grant kit consists of:
 - A name and description.
 - A workflow, which can have several steps that regulate how access is given. In our file, it's a simple one-step approval by an administrator.
-- A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resource to save administrators time. This is useful if a user is not a member of a department or country with permission to access a specific resource. Policies don't use HCL, but rather the [Open Policy Agent](https://www.openpolicyagent.org/) Rego format. Here is where you could [add an expiry condition](https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration). Since Abbey (and Terraform) can manage multiple cloud providers, you don't set an expiry date for access with AWS `DateLessThan`. Instead, Abbey servers will change your configuration files in GitHub and run Terraform at the date you specify.
+- A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resource to save administrators time. This is useful if a user is not a member of a department or country with permission to access a specific resource. Policies don't use HCL, but rather the [Open Policy Agent](https://www.openpolicyagent.org/) Rego format. Here is where you could [add an expiry condition](https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration). Since Abbey (and Terraform) can manage multiple cloud providers, you don't set an expiry date for access with AWS `DateLessThan`. Instead, Abbey servers will change your configuration files in GitHub and run Terraform at the date you specify to revoke access.
 - An output, which describes what should happen if access is approved. In our file, Abbey gives access by adding a user to a group in the `access.tf` configuration file.
 
 At the bottom, the file contains resources. This could be a database or role. In our case, the resource is a user group.
@@ -751,7 +751,7 @@ Abbey has two components:
 
 Users and administrators interact with the app to request, approve, and revoke access.
 
-When Abbey approves access, the app commits code to the GitHub repository, which runs a GitHub action to run `terraform apply` using the Terraform state that is kept securely in the Abbey web server.
+When Abbey approves access, the app commits code to the GitHub repository, which runs a GitHub Action to run `terraform apply` using the Terraform state that is kept securely in the Abbey web server.
 
 ### What things can I manage with Abbey?
 
@@ -775,7 +775,7 @@ Terraform defaults to storing your state file locally. And if you're using Abbey
 ### What are the disadvantages of Abbey?
 
 - Unlike Terraform or OpenTofu, Abbey has no free local version. Companies with more than twenty users need to pay for the service.
-- You can manage access only through the Abbey website. If the Abbey site goes offline, you will no longer be able to manage your access through it. While waiting for the site to return, you will have to make Terraform configuration changes manually again.
+- You can manage access only through the Abbey website. If the Abbey site goes offline, you will no longer be able to manage your access through it. While waiting for the site to return, you will have to make Terraform configuration changes manually.
 
 You aren't locked into the service, however. If you wish to stop using Abbey, you can unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone. Running `terraform state pull` will download your state file from Abbey, like any remote server.
 
