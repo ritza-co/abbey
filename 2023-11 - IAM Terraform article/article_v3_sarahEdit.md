@@ -24,6 +24,8 @@
     - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
   - [What is Abbey and how does it make access to data easier?](#what-is-abbey-and-how-does-it-make-access-to-data-easier)
     - [Install Abbey](#install-abbey)
+    - [Link Abbey to your GitHub repository](#link-abbey-to-your-github-repository)
+    - [Configure your AWS settings](#configure-your-aws-settings)
     - [Make an access request with Abbey](#make-an-access-request-with-abbey)
     - [Read the database with the user using the group in the CLI](#read-the-database-with-the-user-using-the-group-in-the-cli)
     - [Revoke permissions](#revoke-permissions)
@@ -47,7 +49,6 @@ To follow this tutorial, you'll need:
 
 - An AWS account. Free tier is fine. If you don't have an account, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup). AWS DynamoDB is always free to store 25 GB. Completing this tutorial will cost you no AWS fees.
 - Docker, version 20 or greater. Docker allows you to run all commands in this tutorial, whether you're on Windows, macOS, or Linux. You're welcome to run commands directly on your machine instead if you can handle differences that may occur.
-- Git and a GitHub account.
 
 ## A few definitions
 
@@ -609,7 +610,7 @@ The other difficulty in this example is the manual process required for a user t
 
 Now that you know how to use Terraform, you are probably exhausted at the thought of managing hundreds of configuration file updates for every user access request. Luckily, there are a few services that are a level of abstraction above Terraform. [Abbey](https://www.abbey.io/) is one example: A web application where users can request access to cloud resources and administrators can approve them. Permissions are automatically adjusted in your connected Terraform GitHub account and configured on AWS.
 
-Let's use Abbey to assign a user to a group to see how it works. Once again, following this tutorial won't incur charges, as Abbey is free for the first twenty users.
+Let's use Abbey to assign a user to a group to see how it works. Once again, following this tutorial won't incur charges, as Abbey is free for the first twenty users. You will need to have Git installed and GitHub account to follow this section.
 
 ### Install Abbey
 
@@ -625,6 +626,8 @@ Install Abbey:
 - Clone the repository to your computer in the `workspace\abbeytest` folder.
 
 Note that the Terraform list of [starter kit repositories](https://github.com/orgs/abbeylabs/repositories?language=&q=abbey-starter-kit&sort=&type=all) contains both `abbey-starter-kit-terraform-cloud` and `abbey-starter-kit-aws-iam`. Even though the AWS kits don't mention Terraform in their name, all kits use Terraform. Don't use the Terraform cloud kit, as that is a paid Terraform service.
+
+### Link Abbey to your GitHub repository
 
 Add your AWS access keys to the GitHub repository.
 - Browse to your `abbeytest` repository and click the **Settings** tab.
@@ -652,6 +655,8 @@ In the cloned repository, you have a new Terraform configuration file called `wo
 - An output, which describes what should happen if access is approved. In our file, Abbey gives access by adding a user to a group in the `access.tf` configuration file.
 
 At the bottom, the file contains resources. This could be a database or role. In our case, the resource is a user group.
+
+### Configure your AWS settings
 
 Let's change this grant starter kit to match the particulars of your AWS account:
 - Change the `provider` to Ireland:
@@ -686,6 +691,8 @@ Let's change this grant starter kit to match the particulars of your AWS account
 Users in Abbey have their own identity, determined by their email address, separate from any identities they may use in AWS. You can add users to your Abbey account in bulk to save time.
 
 ### Make an access request with Abbey
+
+Abbey is now configured to manage access in your AWS account. Let's test this by getting Carol to request access to the database.
 
 - Browse to https://app.abbey.io/resources.
   ![Request access in Abbey](./assets/request.jpg)
@@ -728,7 +735,7 @@ resource "aws_iam_user_group_membership" "user_carol_group_readergroup" {
 
 ### Revoke permissions
 
-In the Abbey **Approvals** screen, click **Revoke**.
+Once Carol is done with the database, the administrator can remove her access. In the Abbey **Approvals** screen, click **Revoke**.
   ![Revoke permissions](./assets/revoke.jpg)
 
 After waiting two minutes for Abbey to run the GitHub action to revoke access, you'll see that Carol can no longer read the database:
