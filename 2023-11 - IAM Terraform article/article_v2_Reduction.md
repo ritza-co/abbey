@@ -12,7 +12,6 @@
     - [Read the database with the user using the role](#read-the-database-with-the-user-using-the-role)
     - [How to limit Bob's access to the table?](#how-to-limit-bobs-access-to-the-table)
   - [Use Terraform to manage users](#use-terraform-to-manage-users)
-    - [What is Terraform?](#what-is-terraform)
     - [Create an administrator in IAM](#create-an-administrator-in-iam)
     - [Install Terraform](#install-terraform)
     - [Set AWS credentials](#set-aws-credentials)
@@ -22,19 +21,18 @@
     - [Create a role](#create-a-role-1)
     - [Request access to the database](#request-access-to-the-database-1)
     - [Read the database with the user using the role in the CLI](#read-the-database-with-the-user-using-the-role-in-the-cli)
-  - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
+    - [Advantages and disadvantages of Terraform](#advantages-and-disadvantages-of-terraform)
   - [What is Abbey, and how does it make this easier?](#what-is-abbey-and-how-does-it-make-this-easier)
     - [Install Abbey](#install-abbey)
     - [Make an access request with Abbey](#make-an-access-request-with-abbey)
     - [Read the database with the user using the group in the CLI](#read-the-database-with-the-user-using-the-group-in-the-cli)
     - [Revoke permissions](#revoke-permissions)
-  - [Delete your temporary administrator](#delete-your-temporary-administrator)
+    - [Delete your temporary administrator](#delete-your-temporary-administrator)
     - [How exactly does Abbey work?](#how-exactly-does-abbey-work)
     - [What things can I manage with Abbey?](#what-things-can-i-manage-with-abbey)
     - [How does Abbey fit into my existing state files and GitHub repository for my project?](#how-does-abbey-fit-into-my-existing-state-files-and-github-repository-for-my-project)
     - [What are the benefits of Abbey over using Terraform alone?](#what-are-the-benefits-of-abbey-over-using-terraform-alone)
     - [What are the disadvantages of Abbey?](#what-are-the-disadvantages-of-abbey)
-    - [What are the alternatives to Abbey for access governance?](#what-are-the-alternatives-to-abbey-for-access-governance)
 
 
 ## Introduction
@@ -64,7 +62,7 @@ AWS role | An identity that is not any specific person or application, but rathe
 AWS IAM | Identity and Access Management — the service that manages all users and permissions in your AWS account.
 AWS Identity Center | Formerly, AWS Single Sign On. A service to manage users across multiple AWS accounts. We use IAM in this article instead of Identity Center because it's simpler to start with.
 AWS [CloudFormation](https://aws.amazon.com/cloudformation/) | A configuration service provided by AWS, that allows you to create and configure users and applications declaratively, in JSON or YAML files. Without using CloudFormation, you need to imperatively set up AWS components through the website (console), or by running commands through the AWS CLI in a terminal.
-[Terraform](https://www.terraform.io/) | An application similar to CloudFormation, that allows declarative configuration. However, Terraform is not created by AWS. It is a level of abstraction above AWS. Terraform can be run on any server you have access to, and uses the same configuration files to manage access on [different cloud providers](https://registry.terraform.io/), including Azure, AWS, and Google Cloud.
+[Terraform](https://www.terraform.io/) | An application similar to CloudFormation, that allows declarative configuration. However, Terraform is not created by AWS. It is a level of abstraction above AWS. Terraform can be run on any server you have access to, and uses the same configuration files to manage access on [different cloud providers](https://registry.terraform.io/), including Azure, AWS, and Google Cloud. It is common to store Terraform configuration files in version control, like GitHub, so that configuration and access control can be collaborative, versioned, approved, and audited.
 
 Although AWS provides CloudFormation for configuration, we recommend Terraform in this article because:
 - It separates planning and execution of your configuration changes, allowing you to see what will happen before you run your change.
@@ -76,6 +74,8 @@ Note that versions of Terraform after 1.5 are no longer open source. The company
 ## Configure database access in AWS IAM manually
 
 In this section we'll create a [DynamoDB](https://aws.amazon.com/dynamodb) table called Person with one row, a user called Bob that wants to access it, and a role that the user can assume to access the table.
+
+> If you're already comfortable with managing users, roles, and databases in AWS, skip ahead to section on [Terraform](#use-terraform-to-manage-users).
 
 Requiring the user to assume a role to access the table offers a few advantages over giving a user direct access to a resource:
 - It limits access to the least privilege. Assuming the role will grant a user the permissions of that role, but remove all their other permissions. Adding a user to a group won't have this safety.
@@ -145,7 +145,7 @@ The administrator (you) logs in to the AWS web console and gives Bob permission 
   ```
 - Name the policy `bobreader`.
 
-The administrator then replies to Bob's email, saying that he now has permissions to read the database.
+The administrator then tells Bob he now has permissions to read the database.
 
 ### Read the database with the user using the role
 
@@ -155,7 +155,6 @@ Bob logs in to the AWS website, entering the company's account identifier, his n
 - Searches for the `DynamoDB` service.
 - Clicks "Tables" and is told "Your role does not have permissions to view the list of tables.".
 - Under your name at the top right of the screen, click "Switch role".
-- Click "Switch role".
 - Enter your account identifer in "Account".
 - Enter `reader` in "Role".
 - Enter anything in "Display Name".
@@ -184,10 +183,6 @@ If Bob doesn't need permanent access to the table, the administrator will want t
 
 In this section, we are going to repeat what was done in the previous section on AWS, but using Terraform instead. We will create a user called Carol and a role she can assume to read the DynamoDB table.
 
-### What is Terraform?
-
-Terraform is an open-source infrastructure as code (IaC) application that allows you to configure cloud infrastructure using configuration files. It is common to store these files in version control, like GitHub, so that configuration and access control can be collaborative, versioned, approved, and audited.
-
 ### Create an administrator in IAM
 
 If you completed the earlier section and have the user Bob, please go to his user in the AWS console and add the new permission `AdministratorAccess`. Since you noted his access key you can use it in the AWS CLI, now that Bob is an administrator. Also browse to your DynamoDB Person table and delete it, as we will recreate it with Terraform.
@@ -205,7 +200,7 @@ FROM alpine:3.18.4
 
 WORKDIR /workspace
 
-RUN apk add   aws-cli   terraform
+RUN apk add aws-cli terraform
 ```
 
 Build the container and start it:
@@ -385,13 +380,15 @@ aws_dynamodb_table.person: Creation complete after 10s [id=Person]
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ```
 
-If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that it did not create and are not in the state file. You can use the [import](https://developer.hashicorp.com/terraform/language/import) command to include existing AWS infrastructure in your Terraform configuration.
+You have successfully created a new database table.
 
-Note that Terraform created the file `terraform.tfstate`, to represent and track your AWS configuration. This file is essential to Terraform and must be safely kept and backed up, but also contains secrets and so should not be stored in Git. Include `terraform.tfstate*` in your `.gitignore` file. Managing your Terraform state is a complicated topic. This [article](https://spacelift.io/blog/terraform-state) is a good starting point. Secrets can be stored in AWS Parameter Store (free) or Secrets Manager (paid and more powerful).
+Note that Terraform created the file `terraform.tfstate`, to represent and track your AWS configuration. This file is essential to Terraform and must be safely kept and backed up, but also contains secrets and so should not be stored in Git. Include `*.tfstate*` in your `.gitignore` file. Managing your Terraform state is a complicated topic. This [article](https://spacelift.io/blog/terraform-state) is a good starting point. Secrets can be stored in AWS Parameter Store (free) or Secrets Manager (paid and more powerful).
+
+If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that are not in the state file. You can use the [import](https://developer.hashicorp.com/terraform/language/import) command to include existing AWS infrastructure in your Terraform configuration.
 
 ### Add a row to the table
 
-To check that the table exists, let's add a row:
+To check that the table works, let's add a row:
 
 ```bash
 aws dynamodb put-item \
@@ -406,7 +403,7 @@ If you browse to the database in the AWS console and "Explore table items", you 
 
 ### Create a user
 
-Add the following code to `main.tf`.
+Add the following code to `main.tf` to add a user called Carol and give her an CLI access key.
 
 ```terraform
 resource "aws_iam_user" "carol" {
@@ -471,7 +468,7 @@ aws_iam_access_key.carol_key: Creation complete after 1s [id=AKIAQSCRAQJDWEEF5AE
 Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 ```
 
-Carol's access key and secret are now in the `terraform.tfstate` file. Open the file and note them. Now we can use the keys to log in to AWS using the CLI and see if we can access the Person table. Instead of rerunning `aws configure` and changing your default credentials, let's just pass Carol's keys into the CLI for one command. In the Docker terminal run the command below, replacing the keys inside single quotes:
+Carol's access key and secret are now in the `terraform.tfstate` file. Now we can use her keys to log in to AWS using the CLI and see if we can access the Person table. Instead of rerunning `aws configure` and changing your default credentials, let's just pass Carol's keys into the CLI for one command. In the Docker terminal run the command below, replacing the keys inside single quotes:
 
 ```bash
 AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws s3 ls
@@ -485,7 +482,7 @@ An error occurred (AccessDenied) when calling the ListBuckets operation: Access 
 
 ### Create a role
 
-Add the following code to your `main.tf` file to create a role that access to the DynamoDB table that Carol can assume. Update the `Principal` with your account number, and the `DateLessThan` to be tomorrow.
+Add the following code to your `main.tf` file to create a role with access to the DynamoDB table that Carol can assume. Update the `Principal` with your AWS account number, and the `DateLessThan` to be tomorrow.
 
 ```terraform
 resource "aws_iam_role" "dbreader" {
@@ -511,15 +508,15 @@ resource "aws_iam_role_policy_attachment" "dbreader_dynamodb_readonly" {
 }
 ```
 
-The resource creates the role for your account with an expiry date. The second resource is a permission to access DynamoDB, with a link to the AWS resource `name` of the Terraform role called `dbreader` created above. This is an example of how Terraform configuration files abstract the details of the underlying cloud provider: we're using the config file name of the resource, not AWS name.
+The first resource creates the role for your account with an expiry date. The second resource is a permission to access DynamoDB, with a link to the AWS resource `name` of the Terraform role called `dbreader` created above. This is an example of how Terraform configuration files abstract the details of the underlying cloud provider: we're using the config file name of the resource, not AWS name.
 
 Run `terraform apply`.
 
 ### Request access to the database
 
-We now have a role with a permission to read the database, and a user, Carol. But Carol does not have permissions to assume roles. If she wants to access the Person table she must email an AWS administrator at her company to ask for access.
+We now have a role with a permission to read the database, and a user, Carol. But Carol does not have permissions to assume roles. If she wants to access the Person table she must ask an AWS administrator at your company for access.
 
-As the administrator, you need to add the code below to the configuration file and run `terraform apply` again. Update the `DateLessThan` value to tomorrow.
+As the administrator, you need to add the code below to the configuration file to give Carol permissions to the role, and run `terraform apply` again. Update the `DateLessThan` value to tomorrow.
 
 ```terraform
 data "aws_iam_policy_document" "carol_assume_role_policy" {
@@ -595,11 +592,9 @@ Be sure to remove newlines from your session token or the command will fail. The
 }
 ```
 
-Terraform has successfully given Carol temporary access to read the table for Alice's email address.
+Congratulations! Terraform has successfully given Carol temporary access to read the table for Alice's email address. You can now manage users, resources, and permissions with Terraform.
 
-Carol's access to the database will automatically expire tomorrow, if the administrator set the correct condition in the policy.
-
-## Advantages and disadvantages of Terraform
+### Advantages and disadvantages of Terraform
 
 The advantages of using Terraform in our example, over AWS alone, are
 - It's faster to add text to a configuration file and run `apply` than use the AWS web console. ChatGPT can provide the correct syntax for any configuration you need too.
@@ -612,11 +607,9 @@ The other difficulty in this example is the manual process required for a user t
 
 ## What is Abbey, and how does it make this easier?
 
-[Abbey](https://www.abbey.io/) | A service that is a level of abstraction above Terraform. It is a web application where users can request access to cloud resources and administrators can approve them. Permissions are automatically adjusted in your connected Terraform GitHub account and configured on AWS.
+Now that you know how to use Terraform, you are probably exhausted at the thought of managing hundreds of configuration file updates for every user access request. Luckily, there are a few services that are a level of abstraction above Terraform. [Abbey](https://www.abbey.io/) is one example — a web application where users can request access to cloud resources and administrators can approve them. Permissions are automatically adjusted in your connected Terraform GitHub account and configured on AWS.
 
-Abbey is [free](https://www.abbey.io/pricing/) for teams of twenty people or fewer.
-
-We are going to use Abbey to assign a user to a group, instead of a role, this time to see how it works.
+Let's briefly use Abbey to assign a user to a group to see how it works. Once again, following this tutorial won't incur charges, as Abbey is free for the first twenty users.
 
 ### Install Abbey
 
@@ -627,7 +620,7 @@ Install Abbey:
 - Register an account at https://accounts.abbey.io/sign-up.
 - Under "Settings" — "API Tokens", create a new Abbey API key. (Although the tab is called "API Tokens" and the buttons are called "API Keys", don't be confused — these terms mean the same thing.)
 - Browse to https://github.com/abbeylabs/abbey-starter-kit-aws-iam.
-- Click "Use this template" → "Create a new repository". This will create a copy of the repository in your GitHub account (unlike forking the repository, your copy [won't have the original's commit history](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+- Click "Use this template" → "Create a new repository". This will create a copy of the repository in your GitHub account (unlike forking the repository, your copy [won't have the original's commit history](https://docs.github.com/en/repositories/creating-and-managing-repositoriescreating-a-repository-from-a-template)).
 - Make it a private repository for safety and name it `abbeytest`.
 - Clone the repository to your computer into the `workspace\abbeytest` folder.
 
@@ -638,7 +631,7 @@ Add your AWS access keys to the GitHub repository.
 - Click "Secrets and variables" — "Actions".
 - Click "New repository secret".
   - Set the "Name" to `AWS_ACCESS_KEY_ID`
-  - Set the "Secret" to the Bob's access key from earlier. (Remember Bob is now an AWS administrator).
+  - Set the "Secret" to your access key from earlier. (Remember Bob is now an AWS administrator if you completed the first section).
   - Click "Add secret"
 - Add two more secrets in a similar way:
   - `AWS_SECRET_ACCESS_KEY` set to Bob's secret key
@@ -746,7 +739,7 @@ AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret 
 
 And `workspace/abbeytest/access.tf` will now be blank once more.
 
-## Delete your temporary administrator
+### Delete your temporary administrator
 
 If you've been following along with this tutorial, delete user Bob, so that his administrator permissions cannot be exploited.
 
@@ -775,7 +768,7 @@ Terraform defaults to storing your state file locally. And if you're using Abbey
 
 ### What are the benefits of Abbey over using Terraform alone?
 
-- Simplicity: The initial configuration of Abbey will take a few hours, but after that users can see all resources on a single page, and request access in a single click, while administrators can grant it in another click. You no longer need to rely solely on email.
+- Simplicity: The initial configuration of Abbey will take a few hours, but after that users can see all resources on a single page, and request access in a single click, while administrators can grant it in another click.
 - Auditing: Abbey stores all access requests and changes in your GitHub repository as pull requests, actions, and code merges. You can use this as an audit history to know who had access to a resource at any point in time.
 - Reduction of human error: Since granting access is automated, administrators no longer have to adjust Terraform configuration files manually and then apply them. This reduces the chance that access will be incorrectly set.
 
@@ -786,7 +779,7 @@ Terraform defaults to storing your state file locally. And if you're using Abbey
 
 You aren't locked in to the service, however. If you wish to stop using Abbey, you can unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone. Running `terraform state pull` will download your state file from Abbey, like any remote server.
 
-### What are the alternatives to Abbey for access governance?
+<!-- ### What are the alternatives to Abbey for access governance?
 
 If you want to move beyond GitHub tickets and manual Terraform updates, there are several companies besides Abbey Labs offering services.
 
@@ -798,5 +791,5 @@ TODO ---------
 - VaultOne.com looks like it might do something similar, but we can't find detailed pricing or feature information on their site.
 
 In contrast, Abbey.io is transparent about their pricing and features, and is simple to set up and test for yourself. They are dedicated to access governance in Terraform, and were easy to use to write this article. Unless you need more than that, they're probably all you need for your organization.
-TODO ---------
+TODO --------- -->
 
