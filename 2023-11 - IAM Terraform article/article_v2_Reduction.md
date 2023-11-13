@@ -2,8 +2,8 @@
 
 - [Create and manage AWS IAM users and roles with Terraform](#create-and-manage-aws-iam-users-and-roles-with-terraform)
   - [Introduction](#introduction)
-    - [A few definitions](#a-few-definitions)
   - [Prerequisites](#prerequisites)
+  - [A few definitions](#a-few-definitions)
   - [Configure database access in AWS IAM manually](#configure-database-access-in-aws-iam-manually)
     - [Create a database](#create-a-database)
     - [Create a user](#create-a-user)
@@ -39,11 +39,19 @@
 
 ## Introduction
 
-This article explains how to use Terraform to manage user access to a database in AWS. First we'll look at managing access directly in AWS, then how to use Terraform to do the same thing.
+This article explains how to set up Terraform to manage user access to a database in AWS. First we'll look at managing access directly in AWS, then how to use Terraform to do the same thing.
 
 The practice of access governance has become increasingly important over the last decade. Privacy laws are becoming more stringent. Businesses are running more of their infrastructure on the cloud, distributed worldwide. The moral, reputational, legal, and financial costs of exposing customer data are massive. Using Terraform to configure, encapsulate, limit, and audit access to your resources can help with this challenge.
 
-### A few definitions
+## Prerequisites
+
+To follow this tutorial, you'll need:
+
+- An AWS account. Free tier is fine. If you don't have an account, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup). AWS DynamoDB is always free to store 25 GB. Completing this tutorial will cost you no AWS fees.
+- Docker, version 20 or greater. Docker allows you to run all commands in this tutorial, whether you're on Windows, Mac, or Linux. You're welcome to run commands directly on your machine instead, if you can handle differences that may occur.
+- Git and a GitHub account.
+
+## A few definitions
 
 Below are AWS access management concepts that are used throughout this tutorial.
 
@@ -58,33 +66,27 @@ AWS Identity Center | Formerly, AWS Single Sign On. A service to manage users ac
 AWS [CloudFormation](https://aws.amazon.com/cloudformation/) | A configuration service provided by AWS, that allows you to create and configure users and applications declaratively, in JSON or YAML files. Without using CloudFormation, you need to imperatively set up AWS components through the website (console), or by running commands through the AWS CLI in a terminal.
 [Terraform](https://www.terraform.io/) | An application similar to CloudFormation, that allows declarative configuration. However, Terraform is not created by AWS. It is a level of abstraction above AWS. Terraform can be run on any server you have access to, and uses the same configuration files to manage access on [different cloud providers](https://registry.terraform.io/), including Azure, AWS, and Google Cloud.
 
-Although AWS provides CloudFormation for configuration, we recommend Terraform in this article as it has a few benefits:
+Although AWS provides CloudFormation for configuration, we recommend Terraform in this article because:
 - It separates planning and execution of your configuration changes, allowing you to see what will happen before you run your change.
 - If you ever want to include a cloud service other than AWS, Terraform can manage both with the same configuration files.
 - It is more powerful, with a large ecosystem, and arguably simpler configuration language.
 
 Note that versions of Terraform after 1.5 are no longer open source. The company changed their license in August 2023. You may soon want to switch to [OpenTofu](https://opentofu.org/), an open source fork of Terraform that is currently working towards a stable release. Currently, OpenTofu is an exact substitute for Terraform, though they will diverge in syntax and features over time.
 
-## Prerequisites
-
-To follow this tutorial, you'll need:
-
-- An AWS account. Free tier is fine. If you don't have an account, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup).
-- Docker, version 20 or greater. Docker allows you to run all commands in this tutorial, whether you're on Windows, Mac, or Linux. You're welcome to run commands directly on your machine instead, if you can handle differences that may occur.
-- Git and a GitHub account.
-
 ## Configure database access in AWS IAM manually
 
-In this section we'll create a [DynamoDB](https://aws.amazon.com/dynamodb) table, a user that wants to access it, and a role that the user can assume to access the table. AWS DynamoDB is always free to store 25 GB. Completing this tutorial will cost you no AWS fees.
+In this section we'll create a [DynamoDB](https://aws.amazon.com/dynamodb) table called Person with one row, a user called Bob that wants to access it, and a role that the user can assume to access the table.
 
 Requiring the user to assume a role to access the table offers a few advantages over giving a user direct access to a resource:
-- It limits access to the least privilege. Assuming the role will grant a user the permissions of that role, but remove all their other permissions.
+- It limits access to the least privilege. Assuming the role will grant a user the permissions of that role, but remove all their other permissions. Adding a user to a group won't have this safety.
 - Credentials are safer, being temporary for a role. A user's access keys are permanent.
 - Roles are centrally managed (you need to manage fewer roles than individual permissions for each user) and are thus more easily maintained and audited.
 
+While the Terraform section of this tutorial is detailed, this initial AWS section excludes obvious actions you need to do, like clicking "Done" or "Next", to save time.
+
 ### Create a database
 
-First, we create a database table:
+Create a database table:
 
 - Browse to DynamoDB in the AWS web console.
 - Create a DynamoDb table called `Person` with partition key string `Id` and sort key string `Email`. Use the default table settings.
@@ -94,47 +96,27 @@ First, we create a database table:
 
 ### Create a user
 
-Second, we create a user, who has no permissions by default, and will request access to read the value from the table:
+Create a user, who has no permissions by default, and will request access to read the value from the table:
 
 - Browse to "IAM".
-- Click "Users".
-- Click "Create user".
-- Enter name `bob`.
+- Create user a user called `bob`.
 - Enable "Provide user access to the AWS Management Console".
-- Select "I want to create an IAM user".
-- Select "Custom password".
-- Enter `P4ssword_`.
-- Disable "Users must create a new password at next sign-in".
+- Give him the password `P4ssword_`.
   ![Create user](./assets/createUser.jpg)
-- Click "Next"
-- Click "Create user"
-- Click "Return to users list".
 
-Now we need to give bob an access key so that he can use the CLI:
+Give Bob an access key to use the CLI:
 
-- Click "bob".
-- Click "Create access key".
-- Click "Command line interface".
-- Enable "I understand the above recommendation and want to proceed to create an access key."
-- Click "Next".
-- Click "Create access key".
-- Save both the access key and secret access key to a file to use later.
-- Click "Done".
+- Click "bob" — "Create access key" — "Command line interface".
+- Save both the access key and secret access key to use later.
 
 ### Create a role
 
-Finally, we create a role with permissions to read from the Person table:
+Finally, create a role with permissions to read from the Person table:
 
 - Browse to "IAM".
-- Click "Roles".
-- Click "Create role".
-- Select "AWS Account".
-- Select "This account".
-- Click "Next".
+- Click "Roles" — "Create role" — "AWS Account" — "This account".
 - Select "AmazonDynamoDBReadOnlyAccess".
-- Click "Next".
 - Under "Role name", enter `reader`.
-- Click "Create role".
 
 Now our example setup is complete and ready to test.
 
@@ -142,13 +124,11 @@ Now our example setup is complete and ready to test.
 
 Bob wants the latest email addresses for all customers and so wants to access the Person table. He emails an AWS administrator at his company and asks for access.
 
-TOOD GITHUB
+Emailing is the first thing you should change when implementing access governance at your company. Emails are hard to audit and easy to delete. As the administrator, you should email Bob back and request that he logs a GitHub issue with his request. When you have given him access you can mark the issue as closed. This provides a time-stamped searchable audit history of access.
 
-The administrator then logs in to the console and does the following:
+The administrator (you) logs in to the AWS web console and gives Bob permission to assume the `reader` role:
 
-- Browse to "Users".
-- Click "bob".
-- In the "Permissions" tab, click "Add permissions" — "Create inline policy".
+- Browse to "Users" — "bob" — "Permissions" — "Add permissions" — "Create inline policy".
 - Select "JSON".
 - Copy and paste the policy below, replacing `<ACCOUNT-ID>` with your account number (found under your name at the very top right of the window).
   ```json
@@ -163,9 +143,7 @@ The administrator then logs in to the console and does the following:
     ]
   }
   ```
-- Click "Next".
-- Enter the name `bobreader`.
-- Click "Create policy".
+- Name the policy `bobreader`.
 
 The administrator then replies to Bob's email, saying that he now has permissions to read the database.
 
