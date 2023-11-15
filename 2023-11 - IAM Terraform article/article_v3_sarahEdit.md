@@ -91,9 +91,9 @@ Create a database table:
 
 - Browse to DynamoDB in the AWS web console.
 - Create a DynamoDB table called "Person" with partition key string "Id" and sort key string "Email". Use the default table settings.
-  ![Create a DynamoDB table](./assets/dynamodb.jpg)
-- Add a row to the table by clicking **Explore table items** and entering "1" in the **Id** field and "alice@example.com" in the **Email** field.
-    ![Add a row](./assets/addItem.jpg)
+  ![Create a DynamoDB table](./assets/dynamodb.png)
+- Add a row to the table by clicking **Explore table items** then **Create Item** and entering "1" in the **Id** field and "alice@example.com" in the **Email** field.
+    ![Add a row](./assets/addItem.png)
 
 ### Create a user
 
@@ -102,12 +102,13 @@ Create a user who has no permissions by default and will request access to read 
 - Browse to **IAM**.
 - Create a user called `bob`.
 - Enable "Provide user access to the AWS Management Console".
+- Choose "I want to create an IAM user".
 - Give the user the password `P4ssword_`.
-  ![Create user](./assets/createUser.jpg)
+  ![Create user](./assets/createUser.png)
 
 Give Bob an access key to use the CLI:
 
-- Click **bob** → **Create access key** > **Command line interface**.
+- Click **bob** → **Create access key** → **Command line interface(CLI)**.
 - Save both the access key and secret access key to use later.
 
 ### Create a role
@@ -163,7 +164,7 @@ Bob logs in to the AWS website, entering the company's account identifier, his n
 
 Bob is returned to the tables screen, and he can click the Person table, click **Explore table items**, and finally see Alice's email address.
 
-![See the DynamoDB table](./assets/seeTable.jpg)
+![See the DynamoDB table](./assets/seeTable.png)
 
 When he's done, Bob can click **Switch back** under his username at the top right.
 
@@ -262,7 +263,7 @@ terraform {
 provider "aws" { region  = "eu-west-1" }
 
 resource "aws_dynamodb_table" "person" {
-  name           = "Person
+  name           = "Person"
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
@@ -475,7 +476,7 @@ Carol's access key and secret are now in the `terraform.tfstate` file. Now we ca
 AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws s3 ls
 ```
 
-As expected, Carol does not yet have database access.
+As expected, Carol does not yet have access.
 
 ```bash
 An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
@@ -483,7 +484,7 @@ An error occurred (AccessDenied) when calling the ListBuckets operation: Access 
 
 ### Create a role
 
-Add the following code to your `main.tf` file to create a role with access to the DynamoDB table that Carol can assume. Update the `Principal` with your AWS account number and the `DateLessThan` to tomorrow.
+Add the following code to your `main.tf` file to create a role with access to the DynamoDB table that Carol can assume. Update the `Principal` with your AWS account number.
 
 ```terraform
 resource "aws_iam_role" "dbreader" {
@@ -598,6 +599,7 @@ Terraform has successfully given Carol temporary access to read the table for Al
 ### Advantages and disadvantages of Terraform
 
 In our example, the advantages of using Terraform over AWS alone are
+
 - It's faster to add text to a configuration file and run `apply` than to use the AWS web console. ChatGPT can provide the correct syntax for any configuration you need.
 - Your configuration files are stored in code, and so can be verified for safety and run by automated tools in a build pipeline.
 - Your AWS state is recorded in a state file, so you can see exactly what is live at any time without having to browse AWS.
@@ -618,6 +620,7 @@ In the AWS web console for the IAM service:
 - Create a group called `readergroup` with the permission `AmazonDynamoDBReadOnlyAccess`.
 
 Install Abbey:
+
 - Register an account at https://accounts.abbey.io/sign-up.
 - Under **Settings** → **API Tokens**, create a new Abbey API key. (Although the tab is called "API Tokens" and the buttons are called "API Keys", don't be confused — these terms mean the same thing.)
 - Browse to https://github.com/abbeylabs/abbey-starter-kit-aws-iam.
@@ -640,7 +643,7 @@ Add your AWS access keys to the GitHub repository.
   - `AWS_SECRET_ACCESS_KEY` set to Bob's secret key.
   - `ABBEY_TOKEN` set to the API key you created after registering on the Abbey website.
 
-![GitHub Abbey secrets](./assets/secret.jpg)
+![GitHub Abbey secrets](./assets/secret.png)
 
 - Browse to https://app.abbey.io/connections.
 - Click **Create a Connection**.
@@ -649,6 +652,7 @@ Add your AWS access keys to the GitHub repository.
   ![Abbey connected to GitHub](./assets/abbeyConnection.jpg)
 
 In the cloned repository, you have a new Terraform configuration file called `workspace/abbeytest/main.tf`. Open it and take a look. You can see that Abbey and AWS are present as Terraform providers at the top. The majority of the configuration is the `resource "abbey_grant_kit" "IAM_membership" {` section. A grant kit consists of:
+
 - A name and description.
 - A workflow, which can have several steps that regulate how access is given. In our file, it's a simple one-step approval by an administrator.
 - A policy, which is not present in our file, but has conditions that can automatically deny a user access to a resource to save administrators time. This is useful if a user is not a member of a department or country with permission to access a specific resource. Policies don't use HCL, but rather the [Open Policy Agent](https://www.openpolicyagent.org/) Rego format. Here is where you could [add an expiry condition](https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration). Since Abbey (and Terraform) can manage multiple cloud providers, you don't set an expiry date for access with AWS `DateLessThan`. Instead, Abbey servers will change your configuration files in GitHub and run Terraform at the date you specify to revoke access.
@@ -695,17 +699,13 @@ Users in Abbey have their own identity, determined by their email address, separ
 Abbey is now configured to manage access in your AWS account. Let's test this by getting Carol to request access to the database.
 
 - Browse to https://app.abbey.io/resources.
-  ![Request access in Abbey](./assets/request.jpg)
+  ![Request access in Abbey](./assets/request.png)
 - Request access. You will receive an email:
-  ![Access requested email](./assets/requestEmail.jpg)
+  ![Access requested email](./assets/requestEmail.png)
 - Abbey will check if the request passes all policies. You will receive another email:
-  ![Checks passed email](./assets/checksPassed.jpg)
-
-<!-- - Access will be immediately rejected. You will receive an email:
-  ![Request denied email](./assets/requestDenied.jpg) -->
-
+  ![Checks passed email](./assets/checksPassed.png)
 - In the Abbey **Approvals** screen, click **Approve**.
-  ![Approve the request](./assets/approve.jpg)
+  ![Approve the request](./assets/approve.png)
 
 
 You can see the GitHub actions Abbey ran to add Carol to the group in your repository's **Actions** tab, https://github.com/YourName/abbeytest/actions.
@@ -724,7 +724,7 @@ Carol is now part of the `readergroup`. Check that she can read the database in 
 AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws dynamodb scan --table-name Person --region eu-west-1
 ```
 
-If you update the `abbeytest` repository from GitHub, you'll see a new file called `workspace/abbeytest/access.tf`. This is where Abbey maintains your access configuration:
+If you update the `abbeytest` repository from GitHub, you'll see a new file called `access.tf` in the `abbeytest` repository. This is where Abbey maintains your access configuration:
 
 ```terraform
 resource "aws_iam_user_group_membership" "user_carol_group_readergroup" {
@@ -736,7 +736,7 @@ resource "aws_iam_user_group_membership" "user_carol_group_readergroup" {
 ### Revoke permissions
 
 Once Carol is done with the database, the administrator can remove her access. In the Abbey **Approvals** screen, click **Revoke**.
-  ![Revoke permissions](./assets/revoke.jpg)
+  ![Revoke permissions](./assets/revoke.png)
 
 After waiting two minutes for Abbey to run the GitHub action to revoke access, you'll see that Carol can no longer read the database:
 
@@ -744,7 +744,7 @@ After waiting two minutes for Abbey to run the GitHub action to revoke access, y
 AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws dynamodb scan --table-name Person --region eu-west-1
 ```
 
-And `workspace/abbeytest/access.tf` will now be blank once more.
+And `abbeytest/access.tf` will now be blank once more.
 
 ### Delete your temporary administrator
 
@@ -765,6 +765,7 @@ When Abbey approves access, the app commits code to the GitHub repository, which
 Abbey specializes in linking resources to users. Use it for any and all access management, but leave the resource provisioning itself in plain Terraform code.
 
 ### How does Abbey fit into my existing state files and GitHub repository for my project?
+
 If you're new to Terraform, you might have added your `main.tf` file directory to your application Git repository. It's better to make a new repository for it, dedicated to infrastructure management.
 
 You should also make another repository, so that you have one repository for infrastructure configuration and one for access configuration. If you prefer to use only one repository, you can split your Terraform files into separate [modules](https://developer.hashicorp.com/terraform/language/modules).
