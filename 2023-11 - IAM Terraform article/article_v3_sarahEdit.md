@@ -782,9 +782,11 @@ Terraform defaults to storing your state file locally. And if you're using Abbey
 ### What are the disadvantages of Abbey?
 
 - Unlike Terraform or OpenTofu, Abbey has no free local version. Companies with more than twenty users need to pay for the service.
-- You can manage access only through the Abbey website. If the Abbey site goes offline, you will no longer be able to manage your access through it. While waiting for the site to return, you will have to make Terraform configuration changes manually.
+- You add another dependency to your infrastructure. However, you're not locked into Abbey. You can always make changes to the Terraform configuration manually.
 
-You aren't locked into the service, however. If you wish to stop using Abbey, you can unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone. Running `terraform state pull` will download your state file from Abbey, like any remote server.
+If you ever want to stop using Abbey, you can simply unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone. 
+
+Running `terraform state pull` will download your state file from Abbey, like any remote server, so it's easy to try it out and see if it works for you without committing upfront.
 
 <!-- ### What are the alternatives to Abbey for access governance?
 
