@@ -649,7 +649,7 @@ Add your AWS access keys to the GitHub repository.
 - Click **Create a Connection**.
 - Name it `abbeytest` and click **Create**.
 - Select **Only select repositories**, select `abbeytest`, and click **Install & Authorize**.
-  ![Abbey connected to GitHub](./assets/abbeyConnection.jpg)
+  ![Abbey connected to GitHub](./assets/abbeyConnection.png)
 
 In the cloned repository, you have a new Terraform configuration file called `workspace/abbeytest/main.tf`. Open it and take a look. You can see that Abbey and AWS are present as Terraform providers at the top. The majority of the configuration is the `resource "abbey_grant_kit" "IAM_membership" {` section. A grant kit consists of:
 
