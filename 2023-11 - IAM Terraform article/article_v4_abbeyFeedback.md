@@ -43,6 +43,14 @@ This article explains how to set up Terraform to manage user access to a databas
 
 The practice of access governance has become increasingly important over the last decade. Privacy laws are becoming more stringent. Businesses are running more of their infrastructure on the cloud, distributed worldwide. The moral, reputational, legal, and financial costs of exposing customer data are massive. Using Terraform to configure, encapsulate, limit, and audit access to your resources can help with this challenge.
 
+Terraform has several benefits over manual infrastructure changes. It allows you to:
+- Manage infrastructure as code (IaC)
+- Across multiple cloud providers in the same language
+- Keeping an audit history in Git of infrastructure changes
+- With collaborative editing and approval
+- To be deployed automatically, with no human error
+- Repeatably with state management and version control.
+
 ## Prerequisites
 
 To follow this tutorial, you'll need:
@@ -785,7 +793,7 @@ Terraform defaults to storing your state file locally. And if you're using Abbey
 - Unlike Terraform or OpenTofu, Abbey has no free local version. Companies with more than twenty users need to pay for the service.
 - You add another dependency to your infrastructure. However, you're not locked into Abbey. You can always make changes to the Terraform configuration manually.
 
-If you ever want to stop using Abbey, you can simply unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone. 
+If you ever want to stop using Abbey, you can simply unlink your Abbey account from your GitHub repository and return to managing your users manually with Terraform or AWS alone.
 
 Running `terraform state pull` will download your state file from Abbey, like any remote server, so it's easy to try it out and see if it works for you without committing upfront.
 
