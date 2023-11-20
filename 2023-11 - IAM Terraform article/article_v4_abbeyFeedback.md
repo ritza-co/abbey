@@ -48,8 +48,8 @@ Terraform has several benefits over manual infrastructure changes. It allows you
 - Across multiple cloud providers in the same language
 - Keeping an audit history in Git of infrastructure changes
 - With collaborative editing and approval
-- To be deployed automatically, with no human error
-- Repeatably with state management and version control.
+- To be deployed automatically, with no human error, and a plan that can be reviewed before execution
+- Repeatably with modules, state management, and version control.
 
 ## Prerequisites
 
