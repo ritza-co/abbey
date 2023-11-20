@@ -134,7 +134,7 @@ Now our example setup is complete and ready to test.
 
 Bob wants the latest email addresses for all customers and so wants to access the Person table. He emails an AWS administrator at his company and asks for access.
 
-Emailing is the first thing you should change when implementing access governance at your company. Emails are hard to audit and easy to delete. As the administrator, you should ask Bob to log a GitHub issue with his request, or in a ticketing system like Jira or Redmine. When you have given him access, you can mark the issue as closed. (This provides a log of access, something that is checked in compliance examinations of standards like SOC 2, [PCI DSS](https://docs-prv.pcisecuritystandards.org/PCI%20DSS/Standard/PCI-DSS-v4_0.pdf), and [ISO/IEC 27001](https://www.iso.org/standard/27001).)
+Emailing is the first thing you should change when implementing access governance at your company. Emails are hard to audit and easy to delete. As the administrator, you should ask Bob to log a GitHub issue with his request, or in a ticketing system like Jira or Redmine. When you have given him access, you can mark the issue as closed. (This provides a log of access, something that is checked in compliance examinations of standards like [SOC 2](https://us.aicpa.org/content/dam/aicpa/interestareas/frc/assuranceadvisoryservices/downloadabledocuments/soc2_csa_ccm_report.pdf), [PCI DSS](https://docs-prv.pcisecuritystandards.org/PCI%20DSS/Standard/PCI-DSS-v4_0.pdf), and [ISO/IEC 27001](https://www.iso.org/standard/27001).)
 
 The administrator (you) logs in to the AWS web console and gives Bob permission to assume the `reader` role:
 
