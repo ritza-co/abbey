@@ -46,7 +46,7 @@ The practice of access governance has become increasingly important over the las
 Terraform has several benefits over manual infrastructure changes. It allows you to:
 - Manage infrastructure as code (IaC)
 - Across multiple cloud providers in the same language
-- Keeping an audit history in Git of infrastructure changes
+- Keeping an auditable log in Git of infrastructure changes
 - With collaborative editing and approval
 - To be deployed automatically, with no human error, and a plan that can be reviewed before execution
 - Repeatably with modules, state management, and version control.
@@ -86,8 +86,8 @@ In this section, we'll create a [DynamoDB](https://aws.amazon.com/dynamodb) tabl
 
 > If you're already comfortable with managing users, roles, and databases in AWS, skip ahead to the section on [Terraform](#use-terraform-to-manage-users).
 
-Requiring the user to assume a role to access the table offers a few advantages over giving a user direct access to a resource:
-- It limits access to the least privilege. Assuming the role will grant a user the permissions of that role but remove all their other permissions. Adding a user to a group won't have this safety.
+Requiring the user to [assume a role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use.html) to access the table offers a few advantages over giving a user direct access to a resource:
+- It temporarily limits permissions to the least privilege. Assuming a role will grant a user the permissions of that role but remove all their other permissions. Adding a user to a group won't have this safety.
 - Credentials are safer, being temporary for a role. A user's access keys are permanent.
 - Roles are centrally managed (you need to manage fewer roles than individual permissions for each user) and therefore more easily maintained and audited.
 
@@ -134,7 +134,7 @@ Now our example setup is complete and ready to test.
 
 Bob wants the latest email addresses for all customers and so wants to access the Person table. He emails an AWS administrator at his company and asks for access.
 
-Emailing is the first thing you should change when implementing access governance at your company. Emails are hard to audit and easy to delete. As the administrator, you should ask Bob to log a GitHub issue with his request. When you have given him access, you can mark the issue as closed. This provides a time-stamped searchable audit history of access.
+Emailing is the first thing you should change when implementing access governance at your company. Emails are hard to audit and easy to delete. As the administrator, you should ask Bob to log a GitHub issue with his request, or in a ticketing system like Jira or Redmine. When you have given him access, you can mark the issue as closed. (This provides a log of access, something that is checked in compliance examinations of standards like SOC 2, [PCI DSS](https://docs-prv.pcisecuritystandards.org/PCI%20DSS/Standard/PCI-DSS-v4_0.pdf), and [ISO/IEC 27001](https://www.iso.org/standard/27001).)
 
 The administrator (you) logs in to the AWS web console and gives Bob permission to assume the `reader` role:
 
@@ -785,7 +785,7 @@ Terraform defaults to storing your state file locally. And if you're using Abbey
 ### What are the benefits of Abbey over using Terraform alone?
 
 - Simplicity: The initial configuration of Abbey will take a few hours, but after that, users can see all resources on a single page and request access in a single click, while administrators can grant it in another click.
-- Auditing: Abbey stores all access requests and changes in your GitHub repository as pull requests, actions, and code merges. You can use this as an audit history to know who had access to a resource at any point in time.
+- Auditing: Abbey stores all access requests and changes in your GitHub repository as pull requests, actions, and code merges. You can use this as a log to know who had access to a resource at any point in time.
 - Reduction of human error: Since granting access is automated, administrators no longer have to adjust Terraform configuration files manually and then apply them. This reduces the chance that access will be incorrectly set.
 
 ### What are the disadvantages of Abbey?
