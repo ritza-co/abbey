@@ -1,3 +1,7 @@
+TODO - comments for ritza
+670 - sarah
+bullet points when converting out of .md format
+
 # Create and manage AWS IAM users and roles with Terraform
 
 - [Create and manage AWS IAM users and roles with Terraform](#create-and-manage-aws-iam-users-and-roles-with-terraform)
@@ -707,6 +711,8 @@ Let's change this grant starter kit to match the particulars of your AWS account
 Users in Abbey have their own identity, determined by their email address, separate from any identities they may use in AWS. You can add users to your Abbey account in bulk to save time.
 
 ### Make an access request with Abbey
+
+TODO - comment 20 of 23.
 
 Abbey is now configured to manage access in your AWS account. Let's test this by getting Carol to request access to the database.
 
