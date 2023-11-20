@@ -134,7 +134,7 @@ Now our example setup is complete and ready to test.
 
 Bob wants the latest email addresses for all customers and so wants to access the Person table. He emails an AWS administrator at his company and asks for access.
 
-Emailing is the first thing you should change when implementing access governance at your company. Emails are hard to audit and easy to delete. As the administrator, you should ask Bob to log a GitHub issue with his request, or in a ticketing system like Jira or Redmine. When you have given him access, you can mark the issue as closed. (This provides a log of access, something that is checked in compliance examinations of standards like [SOC 2](https://us.aicpa.org/content/dam/aicpa/interestareas/frc/assuranceadvisoryservices/downloadabledocuments/soc2_csa_ccm_report.pdf), [PCI DSS](https://docs-prv.pcisecuritystandards.org/PCI%20DSS/Standard/PCI-DSS-v4_0.pdf), and [ISO/IEC 27001](https://www.iso.org/standard/27001).)
+Emailing is the first thing you should change when implementing access governance at your company. Emails are hard to audit and easy to delete. As the administrator, you should ask Bob to log a GitHub issue with his request, or in a ticketing system like Jira or Redmine. When you have given him access, you can mark the issue as closed. (This provides a log of access, something that is required by standards like [SOC 2](https://us.aicpa.org/content/dam/aicpa/interestareas/frc/assuranceadvisoryservices/downloadabledocuments/soc2_csa_ccm_report.pdf), [PCI DSS](https://docs-prv.pcisecuritystandards.org/PCI%20DSS/Standard/PCI-DSS-v4_0.pdf), and [ISO/IEC 27001](https://www.iso.org/standard/27001).)
 
 The administrator (you) logs in to the AWS web console and gives Bob permission to assume the `reader` role:
 
@@ -188,6 +188,8 @@ If Bob doesn't need permanent access to the table, the administrator will want t
     "DateLessThan": {"aws:CurrentTime": "2023-11-06T23:59:59Z"}
   }
   ```
+
+If you don't revoke user access when no longer needed, users' permissions will expand indefinitely, leading to potential privacy and confidentiality problems.
 
 ## Use Terraform to manage users
 
@@ -394,7 +396,7 @@ You have successfully created a new database table.
 
 Note that Terraform created the file `terraform.tfstate` to represent and track your AWS configuration. This file is essential to Terraform and must be safely kept and backed up. It also contains secrets and should not be stored in Git. Include `*.tfstate*` in your `.gitignore` file. Managing your Terraform state is a complicated topic. This [article](https://spacelift.io/blog/terraform-state) is a good starting point. Secrets can be stored in AWS Parameter Store (free) or Secrets Manager (paid and more powerful).
 
-If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that are not in the state file. You can use the [import](https://developer.hashicorp.com/terraform/language/import) command to include existing AWS infrastructure in your Terraform configuration.
+If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that are not in the state file. You can use the [import](https://developer.hashicorp.com/terraform/language/import) command to include existing AWS infrastructure in your Terraform configuration, or use an app like [Terraformer](https://github.com/GoogleCloudPlatform/terraformer).
 
 ### Add a row to the table
 
@@ -630,7 +632,7 @@ In the AWS web console for the IAM service:
 Install Abbey:
 
 - Register an account at https://accounts.abbey.io/sign-up.
-- Under **Settings** → **API Tokens**, create a new Abbey API key. (Although the tab is called "API Tokens" and the buttons are called "API Keys", don't be confused — these terms mean the same thing.)
+- Under **Settings** → **API Keys**, create a new key.
 - Browse to https://github.com/abbeylabs/abbey-starter-kit-aws-iam.
 - Click **Use this template** → **Create a new repository**. This will create a copy of the repository in your GitHub account (unlike forking the repository, your copy [won't have the original repository commit history](https://docs.github.com/en/repositories/creating-and-managing-repositoriescreating-a-repository-from-a-template)).
 - Make it a private repository for safety and name it `abbeytest`.
