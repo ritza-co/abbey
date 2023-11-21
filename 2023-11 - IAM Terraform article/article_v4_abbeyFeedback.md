@@ -813,6 +813,27 @@ Your configuration file `main.tf` can also be split into separate files for easi
 
 Abbey Starter Kits default to storing the state file on the Abbey servers. Rather store your state file in a secure location, as discussed [earlier](#advantages-and-disadvantages-of-terraform).
 
+Here's a simplified overview of this structure:
+
+```txt
+/project_root
+│
+├── /app
+│
+├── /infrastructure_manager
+│   ├── /.terraform
+│   │   └── /providers
+│   ├── /databases.tf
+│   └── /applications.tf
+│
+└── /access_manager (Abbey)
+    ├── /access.tf
+    └── /main.tf
+
+```
+
+Your `terraform.tfstate` will not be in any of these folders.
+
 ### What are the benefits of Abbey over using Terraform alone?
 
 - Simplicity: The initial configuration of Abbey will take a few hours, but after that, users can see all resources on a single page and request access in a single click, while administrators can grant it in another click.
