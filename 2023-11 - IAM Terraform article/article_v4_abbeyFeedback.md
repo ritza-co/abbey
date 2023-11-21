@@ -655,7 +655,7 @@ Add your AWS access keys to the GitHub repository.
   - `AWS_SECRET_ACCESS_KEY` set to Bob's secret key.
   - `ABBEY_TOKEN` set to the API key you created after registering on the Abbey website.
 
-![GitHub Abbey secrets](./assets/secret.png)
+  ![GitHub Abbey secrets](./assets/secret.png)
 
 - Browse to https://app.abbey.io/connections.
 - Click **Create a Connection**.
