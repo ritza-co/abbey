@@ -19,8 +19,8 @@
 - [x] Come up with a basic scenario to demonstrate using terraform + IAM to create and manage users/roles
 - [x] Create the terraform code and steps needed to run through the scenario
 - [x] Sign up for a free trial on Abbey
-- [ ] Try out one of their hello world examples if possible
-- [ ] Figure out what extra value Abbey provides. Mention that and link to the existing Abbey IAM guide at end of article
+- [x] Try out one of their hello world examples if possible
+- [x] Figure out what extra value Abbey provides. Mention that and link to the existing Abbey IAM guide at end of article
 
 ## Article plan
 - How to create user and role to access dynamodb table to read data in AWS IAM. And revoke permissions.
