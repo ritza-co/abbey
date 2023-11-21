@@ -1,6 +1,7 @@
 TODO - comments for ritza
 670 - sarah - muddled
 bullet points when converting out of .md format
+diagrams
 
 # Create and manage AWS IAM users and roles with Terraform
 
@@ -683,7 +684,7 @@ Let's change this grant starter kit to match the particulars of your AWS account
   ```terraform
   provider "aws" { region = "eu-west-1" }
   ```
-- Above the `workflow` step of the `resource`, add a `policy` section:
+- Above the `workflow` step of the `resource`, add a `policy` section. Here we use the [inline format](https://docs.abbey.io/build-a-grant-kit/open-policy-agent-opa-policies/inline-policies) for simplicity:
   ```terraform
   policies = [
     {
@@ -794,7 +795,9 @@ Abbey has two components:
 
 Users and administrators interact with the app to request, approve, and revoke access.
 
-When Abbey approves access, the app commits code to the GitHub repository, which runs a GitHub Action to run `terraform apply` using the Terraform state that is kept securely in the Abbey web server, or wherever you chose to store it.
+When you approve access with Abbey, the app commits code to the GitHub repository. This triggers a GitHub commit Action to run `terraform apply`, using the Terraform state that is kept securely in the Abbey web server, or wherever you chose to store it.
+
+For more detail, see this [video](https://www.youtube.com/watch?v=66WW3rRJYoE).
 
 ### What things can I manage with Abbey?
 
