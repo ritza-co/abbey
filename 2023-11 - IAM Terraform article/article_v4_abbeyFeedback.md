@@ -1,8 +1,3 @@
-TODO - comments for ritza
-670 - sarah - muddled
-bullet points when converting out of .md format
-diagrams
-
 # Create and manage AWS IAM users and roles with Terraform
 
 - [Create and manage AWS IAM users and roles with Terraform](#create-and-manage-aws-iam-users-and-roles-with-terraform)
