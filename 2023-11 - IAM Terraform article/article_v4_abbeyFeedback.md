@@ -671,7 +671,7 @@ In the cloned repository, you have a new Terraform configuration file called `wo
 
 - A name and description.
 - A workflow, which can have several steps that regulate how access is given. In our file, it's a simple one-step approval by an administrator.
-- A policy, which is not present in our file, has conditions that can automatically deny a user access to a resource to save administrators time. Automatic denial is useful if a user is not a member of a department or country with permission to access a specific resource. Policies don't use HCL, but rather the [Open Policy Agent](https://www.openpolicyagent.org/) Rego format. Policies are also where you could [add an expiry condition](https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration). Since Abbey (and Terraform) can manage multiple cloud providers, you don't set an expiry date for access with AWS `DateLessThan`. Instead, Abbey servers will change your configuration files in GitHub and run Terraform at the date you specify to revoke access.
+- A policy, which has conditions that can automatically deny a user access to a resource to save administrators time, or [revoke access after a duration](https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration). Automatic denial is useful if a user is not a member of a department or country with permission to access a specific resource. Policies don't use HCL, but rather the [Open Policy Agent](https://www.openpolicyagent.org/) Rego format. Abbey servers will change your configuration files in GitHub and run Terraform at the date you specify to revoke access.
 - An output, which describes what should happen if access is approved. In our file, Abbey gives access by adding a user to a group in the `access.tf` configuration file.
 
 At the bottom, the file contains resources. This could be a database or role. In our case, the resource is a user group.
@@ -682,6 +682,23 @@ Let's change this grant starter kit to match the particulars of your AWS account
 - Change the `provider` to Ireland:
   ```terraform
   provider "aws" { region = "eu-west-1" }
+  ```
+- Above the `workflow` step of the `resource`, add a `policy` section:
+  ```terraform
+  policies = [
+    {
+      query = <<-EOT
+        package common
+
+        import data.abbey.functions
+
+        allow[msg] {
+          functions.expire_after("5m")
+          msg := "Grant access for 5 minutes."
+        }
+      EOT
+    }
+  ]
   ```
 - Change `reviewers` to the email address you used to register on `accounts.abbey.io`:
   ```terraform
@@ -726,7 +743,7 @@ Abbey is now configured to manage access in your AWS account. Let's test this by
 
 You can see the GitHub actions Abbey ran to add Carol to the group in your repository's **Actions** tab, https://github.com/YourName/abbeytest/actions.
 
-Abbey makes access changes only through GitHub on commits. If you try to run Terraform locally, it will fail because you do not have a state file. Even running `terraform init` will fail with:
+Abbey makes access changes only through GitHub on commits. If you try to run Terraform locally, it will fail because you do not have a state file. Even running `terraform init` will fail because your Abbey key is not set:
 ```bash
 Initializing the backend...
 Error refreshing state: HTTP remote state endpoint requires auth
@@ -751,10 +768,13 @@ resource "aws_iam_user_group_membership" "user_carol_group_readergroup" {
 
 ### Revoke permissions
 
-Once Carol is done with the database, the administrator can remove her access. In the Abbey **Approvals** screen, click **Revoke**.
+After five minutes have passed, Abbey will automatically revoke Carol's group membership, as per your policy. This will create a new GitHub commit:
+  ![Automatic revocation](./assets/automaticRevoke.png)
+
+The administrator could also manually remove her access at any time. To do this, in the Abbey **Approvals** screen, click **Revoke**.
   ![Revoke permissions](./assets/revoke.png)
 
-After waiting two minutes for Abbey to run the GitHub action to revoke access, you'll see that Carol can no longer read the database:
+You'll see that Carol can no longer read the database:
 
 ```bash
 AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws dynamodb scan --table-name Person --region eu-west-1
