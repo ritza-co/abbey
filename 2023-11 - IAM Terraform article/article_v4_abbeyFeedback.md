@@ -712,8 +712,6 @@ Users in Abbey have their own identity, determined by their email address, separ
 
 ### Make an access request with Abbey
 
-TODO - comment 20 of 23.
-
 Abbey is now configured to manage access in your AWS account. Let's test this by getting Carol to request access to the database.
 
 - Browse to https://app.abbey.io/resources.
