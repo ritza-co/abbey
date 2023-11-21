@@ -1,5 +1,5 @@
 TODO - comments for ritza
-670 - sarah
+670 - sarah - muddled
 bullet points when converting out of .md format
 
 # Create and manage AWS IAM users and roles with Terraform
@@ -718,12 +718,12 @@ Abbey is now configured to manage access in your AWS account. Let's test this by
 
 - Browse to https://app.abbey.io/resources.
   ![Request access in Abbey](./assets/request.png)
-- Request access. You will receive an email:
-  ![Access requested email](./assets/requestEmail.png)
-- Abbey will check if the request passes all policies. You will receive another email:
-  ![Checks passed email](./assets/checksPassed.png)
+- Request access. You will receive an email for the GitHub pull request Abbey creates:
+  ![Access requested email](./assets/requestIssue.png)
 - In the Abbey **Approvals** screen, click **Approve**.
   ![Approve the request](./assets/approve.png)
+- The GitHub pull request will update:
+![Request approved](./assets/approveIssue.png)
 
 
 You can see the GitHub actions Abbey ran to add Carol to the group in your repository's **Actions** tab, https://github.com/YourName/abbeytest/actions.
