@@ -44,11 +44,11 @@ This article explains how to set up Terraform to manage user access to a databas
 The practice of access governance has become increasingly important over the last decade. Privacy laws are becoming more stringent. Businesses are running more of their infrastructure on the cloud, distributed worldwide. The moral, reputational, legal, and financial costs of exposing customer data are massive. Using Terraform to configure, encapsulate, limit, and audit access to your resources can help with this challenge.
 
 Terraform has several benefits over manual infrastructure changes. It allows you to:
-- Manage infrastructure as code (IaC)
-- Across multiple cloud providers in the same language
-- Keeping an auditable log in Git of infrastructure changes
-- With collaborative editing and approval
-- To be deployed automatically, with no human error, and a plan that can be reviewed before execution
+- Manage infrastructure as code (IaC).
+- Across multiple cloud providers in the same language.
+- Keeping an auditable log in Git of infrastructure changes.
+- With collaborative editing and approval.
+- To be deployed automatically, with no human error, and a plan that can be reviewed before execution.
 - Repeatably with modules, state management, and version control.
 
 ## Prerequisites
@@ -56,7 +56,7 @@ Terraform has several benefits over manual infrastructure changes. It allows you
 To follow this tutorial, you'll need:
 
 - An AWS account. Free tier is fine. If you don't have an account, sign up [here](https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?.nc2=h_ct&src=header_signup). AWS DynamoDB is always free to store 25 GB. Completing this tutorial will cost you no AWS fees.
-- Docker, version 20 or greater. Docker allows you to run all commands in this tutorial, whether you're on Windows, macOS, or Linux. You're welcome to run commands directly on your machine instead if you can handle differences that may occur.
+- Docker version 20 or greater. Docker allows you to run all commands in this tutorial, whether you're on Windows, macOS, or Linux. You're welcome to run commands directly on your machine instead if you can handle differences that may occur.
 
 ## A few definitions
 
@@ -394,7 +394,7 @@ Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 
 You have successfully created a new database table.
 
-Note that Terraform created the file `terraform.tfstate` to represent and track your AWS configuration. If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that are not in the state file. You can use the [import](https://developer.hashicorp.com/terraform/language/import) command to include existing AWS infrastructure in your Terraform configuration, or use an app like [Terraformer](https://github.com/GoogleCloudPlatform/terraformer).
+Note that Terraform created the file `terraform.tfstate` to represent and track your AWS configuration. If any resource, like another database table, exists in AWS but was not created by Terraform, Terraform will not manage it. Terraform does not modify resources that are not in the state file. You can use the [import](https://developer.hashicorp.com/terraform/language/import) command to include existing AWS infrastructure in your Terraform configuration or use an app like [Terraformer](https://github.com/GoogleCloudPlatform/terraformer).
 
 ### Add a row to the table
 
@@ -606,7 +606,7 @@ Terraform has successfully given Carol temporary access to read the table for Al
 
 ### Advantages and disadvantages of Terraform
 
-In our example, the advantages of using Terraform over AWS alone are
+In our example, the advantages of using Terraform over AWS alone are:
 
 - It's faster to add text to a configuration file and run `apply` than to use the AWS web console. ChatGPT can provide the correct syntax for any configuration you need.
 - Your configuration files are stored in code, and so can be verified for safety and run by automated tools in a build pipeline.
@@ -614,22 +614,21 @@ In our example, the advantages of using Terraform over AWS alone are
 
 The main disadvantage of Terraform is having to manage your `terraform.tfstate` file. Your Terraform state file must be kept safe, but not locally (because every administrator needs to use the latest version) and not in Git because it contains secrets. Include `*.tfstate*` in your `.gitignore` file.
 
-Managing your Terraform state is a complicated topic. This [article](https://spacelift.io/blog/terraform-state) is a good starting point. You can split your state file into modules to make it easier to understand large configurations. You should also use GitHub secrets and Terraform variables instead of hard coding secrets into your configuration files. Secrets can also be stored in AWS Parameter Store (free) or Secrets Manager (paid and more powerful).
+Managing your Terraform state is a complicated topic. This [article](https://spacelift.io/blog/terraform-state) is a good starting point. You can split your state file into modules to make it easier to understand large configurations. You should also use GitHub secrets and Terraform variables instead of hard coding secrets into your configuration files. Secrets can be stored in AWS Parameter Store (free) or Secrets Manager (paid and more powerful).
 
-Store your state file in a versioned online service specifically designed for secrets, like AWS S3 or Terraform Cloud. Read more about this [here](https://developer.hashicorp.com/terraform/language/settings/backends/configuration). Once you have a secure location for your state file, you can automate access to it with [Atlantis](https://www.runatlantis.io/). This free locally hosted app will use the latest version of your state file with Terraform apply when committing Git pull requests for infrastructure. You could also use a more powerful online service, with paid features, like [Spacelift](https://spacelift.io).
+Store your state file in a versioned online service specifically designed for secrets, like AWS S3 or Terraform Cloud. Read more about this [here](https://developer.hashicorp.com/terraform/language/settings/backends/configuration). Once you have a secure location for your state file, you can automate access to it with [Atlantis](https://www.runatlantis.io/). This free locally hosted app will use the latest version of your state file with Terraform apply when committing Git pull requests for infrastructure. You could also use a more powerful online service with paid features like [Spacelift](https://spacelift.io).
 
 The other difficulty in our access example is the manual process required for a user to request database access from an administrator, and the potential for human error when the administrator grants expiring permissions.
 
 ## What is Abbey and how does it make access to data easier?
 
-Now that you know how to use Terraform, you are probably exhausted at the thought of managing hundreds of configuration file updates for user access requests. Luckily, there are a few services that are a level of abstraction above Terraform. [Abbey](https://www.abbey.io/) is one example: A web application where users can request access to cloud resources and administrators can approve them. Permissions are automatically adjusted in your connected Terraform GitHub account and configured on AWS.
+Now that you know how to use Terraform, you are probably exhausted at the thought of managing hundreds of configuration file updates for user access requests. Luckily, there are a few services that are a level of abstraction above Terraform. [Abbey](https://www.abbey.io/) is one example: A web application users can use to request access to cloud resources and administrators can use to approve requests. Permissions are automatically adjusted in your connected Terraform GitHub account and configured on AWS.
 
-Let's use Abbey to assign a user to a group to see how it works. Once again, following this tutorial won't incur charges, as Abbey is free for the first twenty users. You will need to have Git installed and GitHub account to follow this section.
+Let's use Abbey to assign a user to a group to see how it works. Once again, following this tutorial won't incur charges, as Abbey is free for the first twenty users. You will need to have Git installed and a GitHub account to follow this section.
 
 ### Install Abbey
 
-In the AWS web console for the IAM service:
-- Create a group called `readergroup` with the permission `AmazonDynamoDBReadOnlyAccess`.
+In the AWS web console for the IAM service, create a group called `readergroup` with the permission `AmazonDynamoDBReadOnlyAccess`.
 
 Install Abbey:
 
@@ -637,7 +636,7 @@ Install Abbey:
 - Under **Settings** → **API Keys**, create a new key.
 - Browse to https://github.com/abbeylabs/abbey-starter-kit-aws-iam.
 - Click **Use this template** → **Create a new repository**. This will create a copy of the repository in your GitHub account (unlike forking the repository, your copy [won't have the original repository commit history](https://docs.github.com/en/repositories/creating-and-managing-repositoriescreating-a-repository-from-a-template)).
-- Make it a private repository for safety and name it `abbeytest`.
+- Make the repository private for safety and name it `abbeytest`.
 - Clone the repository to your computer in the `workspace\abbeytest` folder.
 
 Note that the Terraform list of [starter kit repositories](https://github.com/orgs/abbeylabs/repositories?language=&q=abbey-starter-kit&sort=&type=all) contains both `abbey-starter-kit-terraform-cloud` and `abbey-starter-kit-aws-iam`. Even though the AWS kits don't mention Terraform in their name, all kits use Terraform. Don't use the Terraform cloud kit, as that is a paid Terraform service.
@@ -663,11 +662,11 @@ Add your AWS access keys to the GitHub repository.
 - Select **Only select repositories**, select `abbeytest`, and click **Install & Authorize**.
   ![Abbey connected to GitHub](./assets/abbeyConnection.png)
 
-In the cloned repository, you have a new Terraform configuration file called `workspace/abbeytest/main.tf`. Open it and take a look. You can see that Abbey and AWS are present as Terraform providers at the top. The majority of the configuration is the `resource "abbey_grant_kit" "IAM_membership" {` section. A grant kit consists of:
+In the cloned repository, you have a new Terraform configuration file called `workspace/abbeytest/main.tf`. Open it and take a look. You can see that Abbey and AWS are present as Terraform providers at the top. The `resource "abbey_grant_kit" "IAM_membership" {` section makes up most of the configuration. A grant kit consists of:
 
 - A name and description.
 - A workflow, which can have several steps that regulate how access is given. In our file, it's a simple one-step approval by an administrator.
-- A policy, which has conditions that can automatically deny a user access to a resource to save administrators time, or [revoke access after a duration](https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration). Automatic denial is useful if a user is not a member of a department or country with permission to access a specific resource. Policies don't use HCL, but rather the [Open Policy Agent](https://www.openpolicyagent.org/) Rego format. Abbey servers will change your configuration files in GitHub and run Terraform at the date you specify to revoke access.
+- A policy, which has conditions that can automatically deny a user access to a resource to save administrators time, or [revoke access after a specified period](https://docs.abbey.io/use-cases/time-based-access/expire-after-a-duration). Automatic denial is useful if a user is not a member of a department or country with permission to access a specific resource. Policies don't use HCL, but rather the [Open Policy Agent](https://www.openpolicyagent.org/) Rego format. Abbey servers will change your configuration files in GitHub and run Terraform at the date you specify to revoke access.
 - An output, which describes what should happen if access is approved. In our file, Abbey gives access by adding a user to a group in the `access.tf` configuration file.
 
 At the bottom, the file contains resources. This could be a database or role. In our case, the resource is a user group.
@@ -776,7 +775,7 @@ You'll see that Carol can no longer read the database:
 AWS_ACCESS_KEY_ID='<Carol's access key>' AWS_SECRET_ACCESS_KEY='<Carol's secret access key>' aws dynamodb scan --table-name Person --region eu-west-1
 ```
 
-And `abbeytest/access.tf` will now be blank once more.
+And `abbeytest/access.tf` will be blank again.
 
 ### Delete your temporary administrator
 
@@ -790,13 +789,13 @@ Abbey has two components:
 
 Users and administrators interact with the app to request, approve, and revoke access.
 
-When you approve access with Abbey, the app commits code to the GitHub repository. This triggers a GitHub commit Action to run `terraform apply`, using the Terraform state that is kept securely in the Abbey web server, or wherever you chose to store it.
+When you approve access with Abbey, the app commits code to the GitHub repository. This triggers a GitHub commit action to run `terraform apply`, using the Terraform state that is kept securely in the Abbey web server or wherever you chose to store it.
 
 For more detail, see this [video](https://www.youtube.com/watch?v=66WW3rRJYoE).
 
 ### What things can I manage with Abbey?
 
-Abbey specializes in linking resources to users. Use it for any and all access management, but leave the resource provisioning itself in plain Terraform code.
+Abbey specializes in linking resources to users. Use it for any and all access management, but leave the resource provisioning in plain Terraform code.
 
 ### How does Abbey fit into my existing state files and GitHub repository for my project?
 
@@ -804,7 +803,7 @@ If you're new to Terraform, you might have added your `main.tf` file directory t
 
 You should also make another repository, so that you have one repository for infrastructure configuration and one for access configuration. If you prefer to use only one repository, you can split your Terraform files into separate [modules](https://developer.hashicorp.com/terraform/language/modules).
 
-Your configuration file `main.tf` can also be split into separate files for easier management. Terraform will use all configuration files it has access to when updating your AWS state.
+Your configuration file `main.tf` can also be split into separate files for easier management. Terraform will use all the configuration files it has access to when updating your AWS state.
 
 Abbey Starter Kits default to storing the state file on the Abbey servers. Rather store your state file in a secure location, as discussed [earlier](#advantages-and-disadvantages-of-terraform).
 
@@ -831,8 +830,8 @@ Your `terraform.tfstate` will not be in any of these folders.
 
 ### What are the benefits of Abbey over using Terraform alone?
 
-- Simplicity: The initial configuration of Abbey will take a few hours, but after that, users can see all resources on a single page and request access in a single click, while administrators can grant it in another click.
-- Auditing: Abbey stores all access requests and changes in your GitHub repository as pull requests, actions, and code merges. You can use this as a log to know who had access to a resource at any point in time.
+- Simplicity: The initial configuration of Abbey will take a few hours, but after that, users can see all resources on a single page and request access in a single click, while administrators can grant it with another click.
+- Auditing: Abbey stores all access requests and changes in your GitHub repository as pull requests, actions, and code merges. You can use this as a log of who had access to a resource at any point in time.
 - Reduction of human error: Since granting access is automated, administrators no longer have to adjust Terraform configuration files manually and then apply them. This reduces the chance that access will be incorrectly set.
 
 ### What are the disadvantages of Abbey?
